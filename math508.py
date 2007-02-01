@@ -13,6 +13,7 @@ Examples:
 	Problems from Math508, Spring 2007, "Filtering Theory" by Prof Remigijus Mikulevicius
 1: Math508_HW2_1
 2: Math508_HW2_2
+3: Math508_HW3_1
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -146,6 +147,52 @@ class Math508_HW2_2(unittest.TestCase):
 			i+=1
 		self.plot_TL_list(TL_list, "HW2-2, T_L=min{T, L} of simple r.w. on Z. m=%s, L=%s"%(m, L))
 
+class Math508_HW3_1(unittest.TestCase):
+	"""
+	2007-02-01
+		Homework 3, No 1 of Math508 (Filtering Theory)
+	"""
+	def setUp(self):
+		print
+	
+	def plot_TL_list(self, TL_list, title):
+		import pylab
+		pylab.clf()
+		x_list = range(1, len(TL_list)+1)
+		pylab.plot(x_list, TL_list, '-')
+		pylab.title(title)
+		pylab.show()
+		pylab.clf()
+		pylab.hist(TL_list, 100)
+		pylab.show()
+	
+	def test_hw3_1_a(self):
+		import random
+		L = raw_input("Please specify L (maximum length of trajectory(default=200)):")
+		if L:
+			L = int(L)
+		else:
+			L = 200
+		x = raw_input("Please specify x (the initial state (default=5)):")
+		if x:
+			x = int(x)
+		else:
+			x = 5
+		initial_x = x
+		TL_list = []
+		j = 0
+		while j<L:
+			if x>0 and x<20:
+				u = random.random()
+				if u>=0 and u<0.5:
+					step = 1
+				else:
+					step = -1
+				x += step
+			j+=1
+			TL_list.append(x)
+		self.plot_TL_list(TL_list, "HW3-1, X0=%s, N=%s, simple r.w. on Z[0,20] with absorption."%(initial_x, L))
+
 if __name__ == '__main__':
 	if len(sys.argv) == 1:
 		print __doc__
@@ -159,7 +206,8 @@ if __name__ == '__main__':
 		sys.exit(2)
 	
 	TestCaseDict = {1: Math508_HW2_1,
-		2: Math508_HW2_2}
+		2: Math508_HW2_2,
+		3: Math508_HW3_1}
 	type = 0
 	for opt, arg in opts:
 		if opt in ("-h", "--help"):
