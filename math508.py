@@ -182,6 +182,38 @@ class Math508_HW3_1(unittest.TestCase):
 		TL_list = []
 		j = 0
 		while j<L:
+			u = random.random()
+			if x>0 and x<20:
+				if u>=0 and u<0.5:
+					step = 1
+				else:
+					step = -1
+			elif x==0 or x==20:
+				if u>=0 and u<0.5:
+					step = 0
+				else:
+					step = int(x<10) - int(x>10)
+			x += step
+			j+=1
+			TL_list.append(x)
+		self.plot_TL_list(TL_list, "HW3-1, X0=%s, N=%s, simple reflected r.w. on Z[0,20]."%(initial_x, L))
+	
+	def test_hw3_1_b(self):
+		import random
+		L = raw_input("Please specify L (maximum length of trajectory(default=200)):")
+		if L:
+			L = int(L)
+		else:
+			L = 200
+		x = raw_input("Please specify x (the initial state (default=5)):")
+		if x:
+			x = int(x)
+		else:
+			x = 5
+		initial_x = x
+		TL_list = []
+		j = 0
+		while j<L:
 			if x>0 and x<20:
 				u = random.random()
 				if u>=0 and u<0.5:
