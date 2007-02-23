@@ -16,6 +16,7 @@ Examples:
 3: Math508_HW3_1
 4: Math508_HW5_1
 5: Math508_HW5_2
+6: Math508_HW6_1
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -250,12 +251,16 @@ class Math508_HW5_1(unittest.TestCase):
 		#pylab.show()
 	
 	def simulate_Xn_Yn(self, K=20, L_list=[1,3,5,10,15,18,20], chain_length=200, output_fname='hw5_1_simulation.out'):
+		"""
+		2007-02-22
+			the chain is from 0 to chain_length, which is 201
+		"""
 		import csv, random
 		writer = csv.writer(open(output_fname, 'w'))
 		for L in L_list:
 			Xn_list = []
 			Yn_list = []
-			for i in range(chain_length):
+			for i in range(chain_length+1):
 				if i==0:
 					#Xi = random.randint(0, K)
 					Xi = 10	#starting at 10
@@ -521,6 +526,203 @@ class Math508_HW5_2(unittest.TestCase):
 		title = 'hw5-2 constant coin HMM'
 		figure_fname = 'hw5_2_constant_coin_HMM'
 		self.plot_list(Xn_hat_list, Yn_list, title, figure_fname)
+
+class Math508_HW6_1(Math508_HW5_1):
+	def initialize_P_X_given_X_array(self, K):
+		import Numeric
+		P_X_given_X_array = Numeric.zeros([K+1, K+1], Numeric.Float)
+		for i in range(K+1):
+			j = i-1
+			if j<0:	#the boundary
+				j = i
+			P_X_given_X_array[i,j] = 1/2.0
+			j = i+1
+			if j>K:	#the boundary
+				j = i
+			P_X_given_X_array[i,j] = 1/2.0
+		return P_X_given_X_array
+		
+	def backward_B_W(self, P_Y_given_X_array, P_X_given_X_array, Yn_list, n, T, K):
+		import Numeric
+		mu_array = Numeric.zeros([T-n+1, K+1], Numeric.Float)	#it's inverse, row 0 is mu_{T}, row 1 is mu_{T-1}, etc
+		for j in range(K+1):
+			mu_array[0,j] = 1
+		for i in range(1, T-n+1):
+			Yn_index = T -i +1
+			for j in range(K+1):
+				for k in range(K+1):
+					mu_array[i, j] += P_Y_given_X_array[k,Yn_list[Yn_index]]*P_X_given_X_array[j, k]*mu_array[i-1, k]
+		return mu_array
+		
+		
+	def forward_B_W(self, Yn_list, K, P_Y_array, P_Y_given_X_array, P_X_given_X_array, P_X_given_Y_array, n):
+		"""
+		2007-02-22
+			watch n+1, and K+1
+		"""
+		import Numeric
+		fi_array = Numeric.zeros([n+1, K+1], Numeric.Float)
+		#calculate fi_0
+		P_Y = P_Y_array[Yn_list[0]]	#
+		for j in range(K+1):
+			fi_array[0,j] = P_X_given_Y_array[Yn_list[0], j]*P_Y
+		#calculate fi_1, fi_2, ...
+		for i in range(1, n+1):
+			for j in range(K+1):
+				for k in range(K+1):
+					fi_array[i, j] += P_Y_given_X_array[j, Yn_list[i]]*P_X_given_X_array[k,j]*fi_array[i-1,k]
+		return fi_array
+	
+	def estimate_X_hat_n_T(self, Yn_list, K, L, T_list, n):
+		"""
+		2007-02-22
+			smoothing, n<T
+		"""
+		P_Y_array = self.initialize_P_Y_array(K, L)
+		print 'P_Y_array'
+		print P_Y_array
+		P_Y_given_X_array = self.initialize_P_Y_given_X_array(K, L)
+		print 'P_Y_given_X_array'
+		print P_Y_given_X_array
+		P_X_given_Y_array = self.initialize_P_X_given_Y_array(P_Y_given_X_array, P_Y_array)
+		print 'P_X_given_Y_array'
+		print P_X_given_Y_array
+		P_Y_array_non_denovo = self.initialize_P_Y_array_non_denovo(P_Y_given_X_array)
+		print 'P_Y_array_non_denovo'
+		print P_Y_array_non_denovo
+		P_X_given_X_array = self.initialize_P_X_given_X_array(K)
+		print 'P_X_given_X_array'
+		print P_X_given_X_array
+		fi_array = self.forward_B_W(Yn_list, K, P_Y_array, P_Y_given_X_array, P_X_given_X_array, P_X_given_Y_array, n)
+		print 'fi_array'
+		print fi_array
+		
+		X_hat_n_T_list = []
+		for T in T_list:
+			print 'Working on K=%s, L=%s, T=%s, n=%s...'%(K, L, T, n)
+			mu_array = self.backward_B_W(P_Y_given_X_array, P_X_given_X_array, Yn_list, n, T, K)
+			print 'mu_array'
+			print mu_array
+			numerator = 0.0
+			denominator = 0.0
+			for i in range(K+1):
+				numerator += i*fi_array[n, i]*mu_array[T-n, i]
+				denominator += fi_array[n, i]*mu_array[T-n, i]
+			X_hat = numerator/denominator
+			X_hat_n_T_list.append(X_hat)
+		print 'X_hat_n_T_list'
+		print X_hat_n_T_list
+		return X_hat_n_T_list
+	
+	def plot_smoothing_X_hat_list(self, T_list, Xn, X_hat_n_T_list, title, figure_fname, xlabel='x'):
+		import pylab
+		pylab.clf()
+		Xn_list = [Xn]*len(T_list)
+		pylab.plot(T_list, Xn_list, 'b')
+		pylab.plot(T_list, X_hat_n_T_list, 'g')
+		pylab.title(r'%s'%title)
+		pylab.xlabel(r'%s'%xlabel)
+		label_list = ['Xn_list', 'Xn_hat_list']
+		pylab.legend(label_list)
+		pylab.savefig('%s.svg'%figure_fname, dpi=150)
+		pylab.savefig('%s.eps'%figure_fname, dpi=150)
+		pylab.savefig('%s.png'%figure_fname, dpi=150)
+		pylab.show()
+	
+	def predict_X_hat_T_n(self, Yn_list, K, L, T, n_list):
+		"""
+		2007-02-22
+			prediction
+		"""
+		P_Y_array = self.initialize_P_Y_array(K, L)
+		print 'P_Y_array'
+		print P_Y_array
+		P_Y_given_X_array = self.initialize_P_Y_given_X_array(K, L)
+		print 'P_Y_given_X_array'
+		print P_Y_given_X_array
+		P_X_given_Y_array = self.initialize_P_X_given_Y_array(P_Y_given_X_array, P_Y_array)
+		print 'P_X_given_Y_array'
+		print P_X_given_Y_array
+		P_Y_array_non_denovo = self.initialize_P_Y_array_non_denovo(P_Y_given_X_array)
+		print 'P_Y_array_non_denovo'
+		print P_Y_array_non_denovo
+		P_X_given_X_array = self.initialize_P_X_given_X_array(K)
+		print 'P_X_given_X_array'
+		print P_X_given_X_array
+		fi_array = self.forward_B_W(Yn_list, K, P_Y_array, P_Y_given_X_array, P_X_given_X_array, P_X_given_Y_array, max(n_list))
+		print 'fi_array'
+		print fi_array
+		
+		X_hat_list = []
+		import Numeric
+		P_X_transition_array = Numeric.identity(K+1, Numeric.Float)
+		
+		#the n_list is from big to small, 
+		for n in n_list:
+			print 'Working on K=%s, L=%s, T=%s, n=%s...'%(K, L, T, n)
+			numerator = 0.0
+			denominator = 0.0
+			fi_T_n_array = Numeric.zeros(K+1, Numeric.Float)
+			if n!=T:	#incremental one by one
+				P_X_transition_array = Numeric.matrixmultiply(P_X_transition_array, P_X_given_X_array)
+			for i in range(K+1):
+				if n==T:
+					fi_T_n_array[i] = fi_array[n, i]
+				else:
+					for j in range(K+1):
+						fi_T_n_array[i] += fi_array[n,j]*P_X_transition_array[j, i]
+				numerator += i*fi_T_n_array[i]
+				denominator += fi_T_n_array[i]
+			X_hat = numerator/denominator
+			X_hat_list.append(X_hat)
+		print 'X_hat_list'
+		print X_hat_list
+		
+		return X_hat_list
+		
+	def test_simple_rw_HMM(self):
+		K=20; L_list=[1,3,5,10,15,18,20]; chain_length=200
+		output_fname = raw_input("Please specify file containing/to contain data(default='hw6_1_simulation'):")
+		if not output_fname:
+			output_fname='hw6_1_simulation.out'
+		simulate_yes = raw_input("Do you need to simulate data into the file(y/N)?")
+		if not simulate_yes:
+			simulate_yes='n'
+		if simulate_yes=='y':
+			self.simulate_Xn_Yn(K, L_list, chain_length, output_fname)
+		
+		import csv, Numeric
+		reader = csv.reader(open(output_fname))
+		row = reader.next()
+		
+		#for prediction
+		n_list = range(100,201)
+		n_list.reverse()	#from big to small
+		T = 200
+		
+		while row:
+			if row[0]=='L':
+				L = int(row[1])
+				Xn_list = reader.next()
+				Xn_list = map(int, Xn_list)
+				Yn_list = reader.next()
+				Yn_list = map(int, Yn_list)
+				if L==500:
+					n = 100
+					T_list = range(100,201)
+					X_hat_n_T_list = self.estimate_X_hat_n_T(Yn_list, K, L, T_list, n)
+					title = r'smoothing $\hat{X_{%s,T}}$ r.w. on A=[0,%s], P(W=+-%s)=1/2'%(n,K,L)
+					figure_fname = 'hw6_1_a_K_%s_L_%s_n_%s'%(K,L,n)
+					self.plot_smoothing_X_hat_list(T_list, Xn_list[n], X_hat_n_T_list, title, figure_fname, xlabel='T')
+				
+				X_hat_T_n_list = self.predict_X_hat_T_n(Yn_list, K, L, T, n_list)
+				title = r'prediction $\hat{X_{%s,n}}$ r.w. on A=[0,%s], P(W=+-%s)=1/2'%(T,K,L)
+				figure_fname = 'hw6_1_b_K_%s_L_%s_T_%s'%(K,L,T)
+				self.plot_smoothing_X_hat_list(n_list, Xn_list[T], X_hat_T_n_list, title, figure_fname, xlabel='n')
+			row = reader.next()
+		del reader
+	
+	
 	
 if __name__ == '__main__':
 	if len(sys.argv) == 1:
@@ -538,7 +740,8 @@ if __name__ == '__main__':
 		2: Math508_HW2_2,
 		3: Math508_HW3_1,
 		4: Math508_HW5_1,
-		5: Math508_HW5_2}
+		5: Math508_HW5_2,
+		6: Math508_HW6_1}
 	type = 0
 	for opt, arg in opts:
 		if opt in ("-h", "--help"):
