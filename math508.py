@@ -17,6 +17,7 @@ Examples:
 4: Math508_HW5_1
 5: Math508_HW5_2
 6: Math508_HW6_1
+7: Math508_HW6_2
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -627,7 +628,7 @@ class Math508_HW6_1(Math508_HW5_1):
 		pylab.savefig('%s.svg'%figure_fname, dpi=150)
 		pylab.savefig('%s.eps'%figure_fname, dpi=150)
 		pylab.savefig('%s.png'%figure_fname, dpi=150)
-		pylab.show()
+		#pylab.show()
 	
 	def predict_X_hat_T_n(self, Yn_list, K, L, T, n_list):
 		"""
@@ -707,7 +708,8 @@ class Math508_HW6_1(Math508_HW5_1):
 				Xn_list = map(int, Xn_list)
 				Yn_list = reader.next()
 				Yn_list = map(int, Yn_list)
-				if L==500:
+				if L==5:
+					#smoothing
 					n = 100
 					T_list = range(100,201)
 					X_hat_n_T_list = self.estimate_X_hat_n_T(Yn_list, K, L, T_list, n)
@@ -715,6 +717,7 @@ class Math508_HW6_1(Math508_HW5_1):
 					figure_fname = 'hw6_1_a_K_%s_L_%s_n_%s'%(K,L,n)
 					self.plot_smoothing_X_hat_list(T_list, Xn_list[n], X_hat_n_T_list, title, figure_fname, xlabel='T')
 				
+				#prediction
 				X_hat_T_n_list = self.predict_X_hat_T_n(Yn_list, K, L, T, n_list)
 				title = r'prediction $\hat{X_{%s,n}}$ r.w. on A=[0,%s], P(W=+-%s)=1/2'%(T,K,L)
 				figure_fname = 'hw6_1_b_K_%s_L_%s_T_%s'%(K,L,T)
@@ -722,8 +725,166 @@ class Math508_HW6_1(Math508_HW5_1):
 			row = reader.next()
 		del reader
 	
+class Math508_HW6_2(Math508_HW5_2):
+	"""
+	2007-02-23
+	"""
+	def setUp(self):
+		print
 	
+	def initialize_P_X_given_X_array(self, no_of_X_states):
+		import Numeric
+		P_X_given_X_array = Numeric.zeros([no_of_X_states, no_of_X_states], Numeric.Float)
+		for i in range(no_of_X_states):
+			for j in range(no_of_X_states):
+				P_X_given_X_array[i,j] = 1/3.0
+		return P_X_given_X_array
+		
+	def backward_B_W(self, P_Y_given_X_array, P_X_given_X_array, Yn_list, n, T, no_of_X_states, map_of_Y_state):
+		import Numeric
+		mu_array = Numeric.zeros([T-n+1, no_of_X_states], Numeric.Float)	#it's inverse, row 0 is mu_{T}, row 1 is mu_{T-1}, etc
+		for j in range(no_of_X_states):
+			mu_array[0,j] = 1
+		for i in range(1, T-n+1):
+			Yn_index = T -i +1
+			for j in range(no_of_X_states):
+				for k in range(no_of_X_states):
+					mu_array[i, j] += P_Y_given_X_array[k,map_of_Y_state[Yn_list[Yn_index]]]*P_X_given_X_array[j, k]*mu_array[i-1, k]
+		return mu_array
+		
+		
+	def forward_B_W(self, Yn_list, no_of_X_states, P_Y_array, P_Y_given_X_array, P_X_given_X_array, P_X_given_Y_array, n, map_of_Y_state):
+		"""
+		2007-02-22
+			watch n+1, and K+1
+		"""
+		import Numeric
+		fi_array = Numeric.zeros([n+1, no_of_X_states], Numeric.Float)
+		#calculate fi_0
+		P_Y = P_Y_array[map_of_Y_state[Yn_list[0]]]
+		for j in range(no_of_X_states):
+			fi_array[0,j] = P_X_given_Y_array[map_of_Y_state[Yn_list[0]], j]*P_Y
+		#calculate fi_1, fi_2, ...
+		for i in range(1, n+1):
+			for j in range(no_of_X_states):
+				for k in range(no_of_X_states):
+					fi_array[i, j] += P_Y_given_X_array[j,map_of_Y_state[Yn_list[i]]]*P_X_given_X_array[k,j]*fi_array[i-1,k]
+		return fi_array
 	
+	def smoothe_X_hat_n_T(self, Yn_list, no_of_X_states, T_list, n):
+		"""
+		2007-02-22
+			smoothing, n<T
+		"""
+		import Numeric
+		P_Y_given_X_array = self.initialize_P_Y_given_X_array()
+		print 'P_Y_given_X_array'
+		print P_Y_given_X_array
+		P_X_array = Numeric.ones(no_of_X_states, Numeric.Float)/(float(no_of_X_states))
+		P_Y_array = self.initialize_P_Y_array_non_denovo(P_Y_given_X_array, P_X_array)
+		print 'P_Y_array'
+		print P_Y_array
+		P_X_given_Y_array = self.initialize_P_X_given_Y_array(P_Y_given_X_array, P_Y_array, P_X_array)
+		print 'P_X_given_Y_array'
+		print P_X_given_Y_array
+		
+		map_of_Y_state = {'H':0, 'T':1}
+		
+		P_X_given_X_array = self.initialize_P_X_given_X_array(no_of_X_states)
+		print 'P_X_given_X_array'
+		print P_X_given_X_array
+		
+		fi_array = self.forward_B_W(Yn_list, no_of_X_states, P_Y_array, P_Y_given_X_array, P_X_given_X_array, P_X_given_Y_array, n, map_of_Y_state)
+		print 'fi_array'
+		print fi_array
+		
+		pi_array = Numeric.zeros([len(T_list), no_of_X_states], Numeric.Float)
+		for j in range(len(T_list)):
+			T = T_list[j]
+			print 'Working on no_of_X_states=%s, T=%s, n=%s...'%(no_of_X_states, T, n)
+			mu_array = self.backward_B_W(P_Y_given_X_array, P_X_given_X_array, Yn_list, n, T, no_of_X_states, map_of_Y_state)
+			print 'mu_array'
+			print mu_array
+			denominator = 0.0
+			for i in range(no_of_X_states):
+				pi_array[j,i] = fi_array[n, i]*mu_array[T-n, i]
+				denominator += fi_array[n, i]*mu_array[T-n, i]
+			pi_array[j] = pi_array[j]/denominator
+		print 'pi_array'
+		print pi_array
+		return pi_array
+	
+	def predict_X_hat_T_n(self, Yn_list, no_of_X_states, T, n_list):
+		"""
+		2007-02-22
+			prediction
+		"""
+		import Numeric
+		P_Y_given_X_array = self.initialize_P_Y_given_X_array()
+		print 'P_Y_given_X_array'
+		print P_Y_given_X_array
+		P_X_array = Numeric.ones(no_of_X_states, Numeric.Float)/(float(no_of_X_states))
+		P_Y_array = self.initialize_P_Y_array_non_denovo(P_Y_given_X_array, P_X_array)
+		print 'P_Y_array'
+		print P_Y_array
+		P_X_given_Y_array = self.initialize_P_X_given_Y_array(P_Y_given_X_array, P_Y_array, P_X_array)
+		print 'P_X_given_Y_array'
+		print P_X_given_Y_array
+		
+		map_of_Y_state = {'H':0, 'T':1}
+		
+		P_X_given_X_array = self.initialize_P_X_given_X_array(no_of_X_states)
+		print 'P_X_given_X_array'
+		print P_X_given_X_array
+		
+		fi_array = self.forward_B_W(Yn_list, no_of_X_states, P_Y_array, P_Y_given_X_array, P_X_given_X_array, P_X_given_Y_array, max(n_list), map_of_Y_state)
+		print 'fi_array'
+		print fi_array
+		
+		
+		pi_array = Numeric.zeros([len(n_list), no_of_X_states], Numeric.Float)
+		#the n_list is from big to small, 
+		for m in range(len(n_list)):
+			n = n_list[m]
+			print 'Working on no_of_X_states=%s, T=%s, n=%s...'%(no_of_X_states, T, n)
+			denominator = 0.0
+			fi_T_n_array = Numeric.zeros(no_of_X_states, Numeric.Float)
+			P_X_transition_array = Numeric.identity(no_of_X_states, Numeric.Float)
+			for i in range(T-n):
+				P_X_transition_array = Numeric.matrixmultiply(P_X_transition_array, P_X_given_X_array)
+				print 'P_X_transition_array'
+				print P_X_transition_array
+			for i in range(no_of_X_states):
+				if n==T:
+					fi_T_n_array[i] = fi_array[n, i]
+				else:
+					for j in range(no_of_X_states):
+						fi_T_n_array[i] += fi_array[n,j]*P_X_transition_array[j, i]
+				print 'fi_T_n_array'
+				print fi_T_n_array
+				pi_array[m,i] = fi_T_n_array[i]
+				denominator += fi_T_n_array[i]
+			pi_array[m] = pi_array[m]/denominator
+		print 'pi_array'
+		print pi_array
+		
+		return pi_array
+	
+	def test_simple_rw_HMM(self):
+		import csv, Numeric
+		Yn_list = 'HHTHHTHTTTT'
+		no_of_X_states = 3
+		
+		#for smoothing
+		T_list = [8,10]
+		n = 5
+		pi_array = self.smoothe_X_hat_n_T(Yn_list, no_of_X_states, T_list, n)
+		
+		#for prediction
+		n_list = [6,5]
+		T = 10
+		pi_array = self.predict_X_hat_T_n(Yn_list, no_of_X_states, T, n_list)
+
 if __name__ == '__main__':
 	if len(sys.argv) == 1:
 		print __doc__
@@ -741,7 +902,8 @@ if __name__ == '__main__':
 		3: Math508_HW3_1,
 		4: Math508_HW5_1,
 		5: Math508_HW5_2,
-		6: Math508_HW6_1}
+		6: Math508_HW6_1,
+		7: Math508_HW6_2}
 	type = 0
 	for opt, arg in opts:
 		if opt in ("-h", "--help"):
