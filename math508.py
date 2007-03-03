@@ -18,6 +18,8 @@ Examples:
 5: Math508_HW5_2
 6: Math508_HW6_1
 7: Math508_HW6_2
+8: Math508_HW7_1
+9: Math508_HW7_2
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -885,6 +887,277 @@ class Math508_HW6_2(Math508_HW5_2):
 		T = 10
 		pi_array = self.predict_X_hat_T_n(Yn_list, no_of_X_states, T, n_list)
 
+class viterbi_algorithm:
+	"""
+	2007-03-02
+	"""
+	def init_score_and_trace_matrix(self, no_of_states, no_of_Yns):
+		sys.stderr.write("Initialize score_matrix and trace_matrix ... ")
+		import Numeric
+		score_matrix = Numeric.zeros([no_of_states, no_of_Yns], Numeric.Float)
+		trace_matrix = []
+		for i in range(no_of_states):
+			trace_matrix.append([])
+			for j in range(no_of_Yns):
+				trace_matrix[i].append(0)
+		sys.stderr.write("Done.\n")
+		return score_matrix, trace_matrix
+	
+	def run_viterbi_algorithm(self, score_matrix, trace_matrix, Yn_list, P_Y_given_X_array, P_X_given_X_array):
+		sys.stderr.write("Running viterbi algorithm ...")
+		no_of_states, no_of_Yns = score_matrix.shape
+		for j in range(1, no_of_Yns):
+			for i in range(no_of_states):
+				candidate_score_value_list = []
+				max_score = 0
+				for k in range(no_of_states):
+					candidate_score = P_Y_given_X_array[i, Yn_list[j]]*P_X_given_X_array[k,i]*score_matrix[k,j-1]
+					candidate_score_value_list.append(candidate_score)
+					if candidate_score>max_score:
+						max_score = candidate_score
+				score_matrix[i,j] = max_score
+				source_of_max_score_list = []
+				for k in range(no_of_states):
+					if candidate_score_value_list[k] == max_score:
+						source_of_max_score_list.append(k)
+				trace_matrix[i][j] = source_of_max_score_list
+		sys.stderr.write("Done.\n")
+		return score_matrix, trace_matrix
+	
+	def recursive_trace(self, trace_matrix, i, j, func):
+		X_state_list = []
+		if j>0:
+			prev_X_state = func(trace_matrix[i][j])
+			X_state_list = self.recursive_trace(trace_matrix, prev_X_state, j-1, func)
+			X_state_list.append(prev_X_state)
+		return X_state_list
+	
+	def trace(self, score_matrix, trace_matrix, func):
+		sys.stderr.write("Tracing the route ...")
+		no_of_Yns = score_matrix.shape[1]
+		X_state_for_last_Yn = 0
+		max_last_score = 0
+		for i in range(score_matrix.shape[0]):
+			if func==min:
+				if score_matrix[i, no_of_Yns-1]>max_last_score:
+					max_last_score = score_matrix[i, no_of_Yns-1]
+					X_state_for_last_Yn = i
+			elif func == max:
+				if score_matrix[i, no_of_Yns-1]>=max_last_score:	#the only difference is >= or >
+					max_last_score = score_matrix[i, no_of_Yns-1]
+					X_state_for_last_Yn = i
+		X_state_list = self.recursive_trace(trace_matrix, X_state_for_last_Yn, no_of_Yns-1, func)
+		X_state_list.append(X_state_for_last_Yn)
+		sys.stderr.write("Done.\n")
+		return X_state_list
+
+class Math508_HW7_1(viterbi_algorithm, Math508_HW6_2):
+	"""
+	2007-03-02
+	"""
+	def setUp(self):
+		print
+	
+	def initialize_P_Y_given_X_array(self):
+		"""
+		for P_Y_given_X_array, row is X, column is Y
+		for P_Y_X_array, row is Y, column is X
+		"""
+		import Numeric
+		P_Y_given_X_array = Numeric.array([[0.75, 0.25], [0.5,0.5], [0.25,0.75]])
+		return P_Y_given_X_array
+	
+	def initlize_1st_column(self, score_matrix, P_Y_given_X_array, P_X_array, Yn_list):
+		for i in range(score_matrix.shape[0]):
+			score_matrix[i,0] = P_Y_given_X_array[i, Yn_list[0]]*P_X_array[i]
+		return score_matrix
+	
+	def test_simple_rw_HMM(self):
+		import csv, Numeric
+		old_Yn_list = 'HHHHTHTTTT'
+		no_of_X_states = 3
+		
+		P_Y_given_X_array = self.initialize_P_Y_given_X_array()
+		print 'P_Y_given_X_array'
+		print P_Y_given_X_array
+		
+		P_X_array = Numeric.ones(no_of_X_states, Numeric.Float)/(float(no_of_X_states))
+		P_Y_array = self.initialize_P_Y_array_non_denovo(P_Y_given_X_array, P_X_array)
+		print 'P_Y_array'
+		print P_Y_array
+		
+		P_X_given_X_array = self.initialize_P_X_given_X_array(no_of_X_states)
+		print 'P_X_given_X_array'
+		print P_X_given_X_array
+		
+		map_of_Y_state = {'H':0, 'T':1}
+		
+		Yn_list = []
+		for i in range(len(old_Yn_list)):
+			Yn_list.append(map_of_Y_state[old_Yn_list[i]])
+		
+		no_of_Yns = len(Yn_list)
+		score_matrix, trace_matrix = self.init_score_and_trace_matrix(no_of_X_states, no_of_Yns)
+		score_matrix = self.initlize_1st_column(score_matrix, P_Y_given_X_array, P_X_array, Yn_list)
+		print 'score_matrix after 1st column initilization'
+		print score_matrix
+		score_matrix, trace_matrix = self.run_viterbi_algorithm(score_matrix, trace_matrix, Yn_list, P_Y_given_X_array, P_X_given_X_array)
+		print 'score_matrix'
+		print score_matrix
+		print 'trace_matrix'
+		for i in range(no_of_X_states):
+			print trace_matrix[i]
+		max_X_state_list = self.trace(score_matrix, trace_matrix, func=max)
+		print 'max_X_state_list'
+		print max_X_state_list
+		min_X_state_list = self.trace(score_matrix, trace_matrix, func=min)
+		print 'min_X_state_list'
+		print min_X_state_list
+
+class Math508_HW7_2(viterbi_algorithm, Math508_HW6_1):
+	"""
+	2007-03-02
+	"""
+	def setUp(self):
+		print
+	
+	def initlize_1st_column(self, score_matrix, P_Y_given_X_array, initial_x_state, Yn_list):
+		for i in range(score_matrix.shape[0]):
+			if i==initial_x_state:
+				score_matrix[i,0] = P_Y_given_X_array[i, Yn_list[0]]
+			else:
+				score_matrix[i,0] = 0
+		return score_matrix
+	
+	def plot(self, Xn_list, X_hat_n_T_list, max_X_state_list, min_X_state_list, title, figure_fname):
+		import pylab, Numeric
+		pylab.clf()
+		x_index_list = range(len(Xn_list))
+		pylab.plot(x_index_list, Xn_list, 'b')
+		pylab.plot(x_index_list, X_hat_n_T_list, 'g')
+		pylab.plot(x_index_list, max_X_state_list, 'r')
+		pylab.plot(x_index_list, min_X_state_list, 'c')
+		pylab.plot(x_index_list, (Numeric.array(min_X_state_list)+Numeric.array(max_X_state_list))/2, 'k')
+		pylab.title(r'%s'%title)
+		pylab.xlabel('n')
+		label_list = ['Xn_list', 'Xn_hat_list', 'max_X_state_list', 'min_X_state_list', '(max+min)/2']
+		pylab.legend(label_list)
+		pylab.savefig('%s.svg'%figure_fname, dpi=200)
+		pylab.savefig('%s.eps'%figure_fname, dpi=200)
+		pylab.savefig('%s.png'%figure_fname, dpi=200)
+		#pylab.show()
+	
+	def smoothe_X_hat_n_T(self, Yn_list, K, L, T, n_list):
+		"""
+		2007-02-22
+			smoothing, n<T
+		"""
+		P_Y_array = self.initialize_P_Y_array(K, L)
+		print 'P_Y_array'
+		print P_Y_array
+		P_Y_given_X_array = self.initialize_P_Y_given_X_array(K, L)
+		print 'P_Y_given_X_array'
+		print P_Y_given_X_array
+		P_X_given_Y_array = self.initialize_P_X_given_Y_array(P_Y_given_X_array, P_Y_array)
+		print 'P_X_given_Y_array'
+		print P_X_given_Y_array
+		P_Y_array_non_denovo = self.initialize_P_Y_array_non_denovo(P_Y_given_X_array)
+		print 'P_Y_array_non_denovo'
+		print P_Y_array_non_denovo
+		P_X_given_X_array = self.initialize_P_X_given_X_array(K)
+		print 'P_X_given_X_array'
+		print P_X_given_X_array
+		max_n = max(n_list)
+		fi_array = self.forward_B_W(Yn_list, K, P_Y_array, P_Y_given_X_array, P_X_given_X_array, P_X_given_Y_array, max_n)
+		print 'fi_array'
+		print fi_array
+		min_n = min(n_list)
+		mu_array = self.backward_B_W(P_Y_given_X_array, P_X_given_X_array, Yn_list, min_n, T, K)
+		print 'mu_array'
+		print mu_array
+		
+		X_hat_n_T_list = []
+		for n in n_list:
+			print 'Working on K=%s, L=%s, T=%s, n=%s...'%(K, L, T, n)
+			numerator = 0.0
+			denominator = 0.0
+			for i in range(K+1):
+				numerator += i*fi_array[n, i]*mu_array[T-n, i]
+				denominator += fi_array[n, i]*mu_array[T-n, i]
+			X_hat = numerator/denominator
+			X_hat_n_T_list.append(X_hat)
+		print 'X_hat_n_T_list'
+		print X_hat_n_T_list
+		return X_hat_n_T_list
+	
+	def find_optimal_path(self, Yn_list, K, L, initial_x_state):
+		P_Y_given_X_array = self.initialize_P_Y_given_X_array(K, L)
+		print 'P_Y_given_X_array'
+		print P_Y_given_X_array
+		
+		#P_X_array = Numeric.ones(no_of_X_states, Numeric.Float)/(float(no_of_X_states))
+		P_Y_array = self.initialize_P_Y_array(K, L)
+		print 'P_Y_array'
+		print P_Y_array
+		
+		P_X_given_X_array = self.initialize_P_X_given_X_array(K)
+		print 'P_X_given_X_array'
+		print P_X_given_X_array
+		
+		no_of_X_states = K + 1
+		no_of_Yns = len(Yn_list)
+		score_matrix, trace_matrix = self.init_score_and_trace_matrix(no_of_X_states, no_of_Yns)
+		score_matrix = self.initlize_1st_column(score_matrix, P_Y_given_X_array, initial_x_state, Yn_list)
+		print 'score_matrix after 1st column initilization'
+		print score_matrix
+		score_matrix, trace_matrix = self.run_viterbi_algorithm(score_matrix, trace_matrix, Yn_list, P_Y_given_X_array, P_X_given_X_array)
+		print 'score_matrix'
+		print score_matrix
+		print 'trace_matrix'
+		for i in range(no_of_X_states):
+			print trace_matrix[i]
+		max_X_state_list = self.trace(score_matrix, trace_matrix, func=max)
+		print 'max_X_state_list'
+		print max_X_state_list
+		min_X_state_list = self.trace(score_matrix, trace_matrix, func=min)
+		print 'min_X_state_list'
+		print min_X_state_list
+		
+		return max_X_state_list, min_X_state_list
+	
+	def test_simple_rw_HMM(self):
+		K=20; L_list=[10,14,16,17]; chain_length=400
+		output_fname = raw_input("Please specify file containing/to contain data(default='hw7_2_simulation'):")
+		if not output_fname:
+			output_fname='hw7_2_simulation.out'
+		simulate_yes = raw_input("Do you need to simulate data into the file(y/N)?")
+		if not simulate_yes:
+			simulate_yes='n'
+		if simulate_yes=='y':
+			self.simulate_Xn_Yn(K, L_list, chain_length, output_fname)
+		
+		import csv, Numeric
+		reader = csv.reader(open(output_fname))
+		row = reader.next()
+		#smoothing
+		n_list = range(0, 400+1)
+		T = 400
+		
+		while row:
+			if row[0]=='L':
+				L = int(row[1])
+				Xn_list = reader.next()
+				Xn_list = map(int, Xn_list)
+				Yn_list = reader.next()
+				Yn_list = map(int, Yn_list)
+				X_hat_n_T_list = self.smoothe_X_hat_n_T(Yn_list, K, L, T, n_list)
+				max_X_state_list, min_X_state_list = self.find_optimal_path(Yn_list, K, L, initial_x_state=10)
+				title = r'Optimal Path by Viterbi X_hat_{n,%s} r.w. on A=[0,%s], P(W=+-%s)=1/2'%(T,K,L)
+				figure_fname = 'hw7_2_K_%s_L_%s_T_%s'%(K,L,T)
+				self.plot(Xn_list, X_hat_n_T_list, max_X_state_list, min_X_state_list, title, figure_fname)
+			row = reader.next()
+		del reader
+	
 if __name__ == '__main__':
 	if len(sys.argv) == 1:
 		print __doc__
@@ -903,7 +1176,9 @@ if __name__ == '__main__':
 		4: Math508_HW5_1,
 		5: Math508_HW5_2,
 		6: Math508_HW6_1,
-		7: Math508_HW6_2}
+		7: Math508_HW6_2,
+		8: Math508_HW7_1,
+		9: Math508_HW7_2}
 	type = 0
 	for opt, arg in opts:
 		if opt in ("-h", "--help"):
