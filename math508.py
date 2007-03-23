@@ -20,6 +20,8 @@ Examples:
 7: Math508_HW6_2
 8: Math508_HW7_1
 9: Math508_HW7_2
+10: Math508_HW8_a
+11: Math508_HW8_b
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -1157,7 +1159,113 @@ class Math508_HW7_2(viterbi_algorithm, Math508_HW6_1):
 				self.plot(Xn_list, X_hat_n_T_list, max_X_state_list, min_X_state_list, title, figure_fname)
 			row = reader.next()
 		del reader
+
+class ConstantMCFiltering:
+	def filtering(self, Yn_list, P_X_array, X_state_list, prob_W, func_to_cal_W, sigma):
+		import Numeric
+		no_of_X_states = len(X_state_list)
+		pi_array = Numeric.zeros([len(Yn_list), no_of_X_states], Numeric.Float)
+		pi_array[0,:] = P_X_array
+		for i in range(1, len(Yn_list)):
+			for j in range(no_of_X_states):
+				denominator  = 0.0
+				for k in range(no_of_X_states):
+					W = func_to_cal_W(Yn_list[i], X_state_list[k], Yn_list[i-1], sigma)
+					denominator += prob_W(W)*pi_array[i-1, k]
+				W = func_to_cal_W(Yn_list[i], X_state_list[j], Yn_list[i-1], sigma)
+				pi_array[i,j] = prob_W(W)*pi_array[i-1,j]/denominator
+		return pi_array
 	
+	def func_to_cal_Y(self, X_n, Y_n, W, sigma):
+		return X_n*Y_n+sigma*W
+	
+	def func_to_cal_W(self, Y_n_plus_1, X_n, Y_n, sigma):
+		return (Y_n_plus_1-X_n*Y_n)/sigma
+	
+	def simulate(self, X_state_list, Y_0, sample_W, sigma, func_to_cal_Y, chain_length=11):
+		import random
+		X_0 = random.sample(X_state_list,1)[0]
+		Wn_list= []
+		Xn_list = [X_0]
+		Yn_list = [Y_0]
+		for i in range(1, chain_length):
+			Xn_list.append(Xn_list[i-1])
+			W = sample_W()
+			Wn_list.append(W)
+			Y_n_plus_1 = func_to_cal_Y(Xn_list[i-1], Yn_list[i-1], W, sigma)
+			Yn_list.append(Y_n_plus_1)
+		return Xn_list, Wn_list, Yn_list
+
+class Math508_HW8_a(ConstantMCFiltering, unittest.TestCase):
+	"""
+	2007-03-23
+	"""
+	def setUp(self):
+		print
+	
+	def prob_W(self, W):
+		if W==1 or W==-1:
+			return 0.5
+		else:
+			return 0.0
+	
+	def sample_W(self):
+		import random
+		u = random.random()
+		if u>0.5:
+			return 1
+		else:
+			return -1
+	
+	def test_simulate_filtering(self):
+		X_state_list = xrange(6)
+		Y_0 = 0
+		sigma = 2
+		chain_length=11
+		Xn_list, Wn_list, Yn_list = self.simulate(X_state_list, Y_0, self.sample_W, sigma, self.func_to_cal_Y, chain_length)
+		print 'Xn_list'
+		print Xn_list
+		print 'Wn_list'
+		print Wn_list
+		print 'Yn_list'
+		print Yn_list
+		P_X_array = [1.0/len(X_state_list)]*len(X_state_list)
+		pi_array = self.filtering(Yn_list, P_X_array, X_state_list, self.prob_W, self.func_to_cal_W, sigma)
+		print 'pi_array'
+		print pi_array
+
+class Math508_HW8_b(ConstantMCFiltering, unittest.TestCase):
+	"""
+	2007-03-23
+	"""
+	def setUp(self):
+		print
+	
+	def prob_W(self, W):
+		import rpy
+		return rpy.r.dnorm(W)
+	
+	def sample_W(self):
+		import random
+		return random.gauss(0,1)
+	
+	def test_simulate_filtering(self):
+		X_state_list = xrange(6)
+		Y_0 = 0
+		sigma = 1
+		chain_length=11
+		Xn_list, Wn_list, Yn_list = self.simulate(X_state_list, Y_0, self.sample_W, sigma, self.func_to_cal_Y, chain_length)
+		print 'Xn_list'
+		print Xn_list
+		print 'Wn_list'
+		print Wn_list
+		print 'Yn_list'
+		print Yn_list
+		P_X_array = [1.0/len(X_state_list)]*len(X_state_list)
+		pi_array = self.filtering(Yn_list, P_X_array, X_state_list, self.prob_W, self.func_to_cal_W, sigma)
+		print 'pi_array'
+		print pi_array
+
 if __name__ == '__main__':
 	if len(sys.argv) == 1:
 		print __doc__
@@ -1178,7 +1286,9 @@ if __name__ == '__main__':
 		6: Math508_HW6_1,
 		7: Math508_HW6_2,
 		8: Math508_HW7_1,
-		9: Math508_HW7_2}
+		9: Math508_HW7_2,
+		10: Math508_HW8_a,
+		11: Math508_HW8_b}
 	type = 0
 	for opt, arg in opts:
 		if opt in ("-h", "--help"):
