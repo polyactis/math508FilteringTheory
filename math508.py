@@ -22,6 +22,8 @@ Examples:
 9: Math508_HW7_2
 10: Math508_HW8_a
 11: Math508_HW8_b
+12: Math508_HW10_1
+13: Math508_HW10_2
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -1266,6 +1268,173 @@ class Math508_HW8_b(ConstantMCFiltering, unittest.TestCase):
 		print 'pi_array'
 		print pi_array
 
+class KalmanFilter:
+	"""
+	2007-04-05
+	"""
+	def simulate(self, X_0, sample_V, sample_W, chain_length, alpha, epsilon, delta):
+		import sys
+		sys.stderr.write("Simulating ...")
+		Xn_list = [X_0]
+		Vn_list = []
+		Yn_list = [Xn_list[0]+delta*self.sample_W()]
+		Wn_list = []
+		for i in range(1, chain_length):
+			Vn = sample_V()
+			Xn = alpha*Xn_list[i-1]+epsilon*Vn
+			Wn = sample_W()
+			Yn = Xn + delta*Wn
+			Vn_list.append(Vn)
+			Xn_list.append(Xn)
+			Wn_list.append(Wn)
+			Yn_list.append(Yn)
+		sys.stderr.write("Done.\n")
+		return Vn_list, Xn_list, Wn_list, Yn_list
+	
+	def decode(self, Yn_list, E_X_0_squared, alpha, epsilon, delta):
+		import sys
+		sys.stderr.write("Decoding ...")
+		c = epsilon*epsilon/(epsilon*epsilon+delta*delta)
+		Pn_list = [(c-1)*(c-1)*E_X_0_squared + c*c*delta*delta]
+		X_hat_list = [c*Yn_list[0]]
+		for i in range(1, len(Yn_list)):
+			common_coeff = (alpha*alpha*Pn_list[i-1]+epsilon*epsilon)/(alpha*alpha*Pn_list[i-1]+epsilon*epsilon+delta*delta)
+			Pn = delta*delta*common_coeff
+			Xn_hat = alpha*X_hat_list[i-1] + common_coeff*(Yn_list[i]-alpha*X_hat_list[i-1])
+			Pn_list.append(Pn)
+			X_hat_list.append(Xn_hat)
+		sys.stderr.write("Done.\n")
+		return Pn_list, X_hat_list
+	
+	def plot(self, Xn_list, X_hat_list, Yn_list, title, figure_fname):
+		import pylab, Numeric
+		pylab.clf()
+		x_index_list = range(len(Xn_list))
+		pylab.plot(x_index_list, Xn_list, 'b')
+		pylab.plot(x_index_list, X_hat_list, 'g')
+		pylab.plot(x_index_list, Yn_list, 'r')
+		pylab.title(r'%s'%title)
+		pylab.xlabel('n')
+		label_list = ['Xn_list', 'Xn_hat_list', 'Yn_list']
+		pylab.legend(label_list)
+		pylab.savefig('%s.svg'%figure_fname, dpi=200)
+		pylab.savefig('%s.eps'%figure_fname, dpi=200)
+		pylab.savefig('%s.png'%figure_fname, dpi=200)
+		pylab.show()
+	
+	def plot_Pn(self, Pn_list, title, figure_fname):
+		import pylab, Numeric
+		pylab.clf()
+		x_index_list = range(len(Pn_list))
+		pylab.plot(x_index_list, Pn_list, 'b')
+		pylab.title(r'%s'%title)
+		pylab.xlabel('n')
+		label_list = ['Pn_list']
+		pylab.legend(label_list)
+		pylab.savefig('%s.svg'%figure_fname, dpi=200)
+		pylab.savefig('%s.eps'%figure_fname, dpi=200)
+		pylab.savefig('%s.png'%figure_fname, dpi=200)
+		pylab.show()
+		
+
+class Math508_HW10_1(KalmanFilter, unittest.TestCase):
+	"""
+	2007-04-06
+	"""
+	def setUp(self):
+		print
+	
+	def sample_W(self):
+		import random
+		return random.gauss(0,1)
+	
+	def simulate_decode(self, chain_length, alpha, epsilon, delta):
+		X_0 = self.sample_W()
+		self.sample_V = self.sample_W
+		Vn_list, Xn_list, Wn_list, Yn_list = self.simulate(X_0, self.sample_V, self.sample_W, chain_length, alpha, epsilon, delta)
+		print 'Vn_list'
+		print Vn_list
+		print 'Xn_list'
+		print Xn_list
+		print 'Wn_list'
+		print Wn_list
+		print 'Yn_list'
+		print Yn_list
+		E_X_0_squared = 1.0
+		Pn_list, X_hat_list = self.decode(Yn_list, E_X_0_squared, alpha, epsilon, delta)
+		print 'Pn_list'
+		print Pn_list
+		print 'X_hat_list'
+		print X_hat_list
+		title = r'KalmanFilter on X0, V1, W1~N(0,1), N=%s, a=%s, e=%s, d=%s'%(chain_length, alpha, epsilon, delta)
+		figure_fname = 'hw10_1_N_%s_a_%s_e_%s_d_%s'%(chain_length, alpha, epsilon, delta)
+		self.plot(Xn_list, X_hat_list, Yn_list, title, figure_fname)
+		
+		title = r'KalmanFilter error on X0, V1, W1~N(0,1), N=%s, a=%s, e=%s, d=%s'%(chain_length, alpha, epsilon, delta)
+		figure_fname = 'hw10_1_error_N_%s_a_%s_e_%s_d_%s'%(chain_length, alpha, epsilon, delta)
+		self.plot_Pn(Pn_list, title, figure_fname)
+		
+	def test_simulate_decode(self):
+		chain_length = 201
+		alpha = 0.9
+		epsilon = 0.3
+		delta = 1
+		self.simulate_decode(chain_length, alpha, epsilon, delta)
+		
+		chain_length = 201
+		alpha = 0.8
+		epsilon = 0.9
+		delta = 2
+		self.simulate_decode(chain_length, alpha, epsilon, delta)
+
+class Math508_HW10_2(KalmanFilter, unittest.TestCase):
+	"""
+	2007-04-06
+	"""
+	def setUp(self):
+		print
+	
+	def sample_W(self):
+		import random
+		u = random.random()
+		if u>0.5:
+			return 1
+		else:
+			return -1
+	
+	def simulate_decode(self, chain_length, alpha, epsilon, delta):
+		X_0 = 1
+		self.sample_V = self.sample_W
+		Vn_list, Xn_list, Wn_list, Yn_list = self.simulate(X_0, self.sample_V, self.sample_W, chain_length, alpha, epsilon, delta)
+		print 'Vn_list'
+		print Vn_list
+		print 'Xn_list'
+		print Xn_list
+		print 'Wn_list'
+		print Wn_list
+		print 'Yn_list'
+		print Yn_list
+		E_X_0_squared = 1.0
+		Pn_list, X_hat_list = self.decode(Yn_list, E_X_0_squared, alpha, epsilon, delta)
+		print 'Pn_list'
+		print Pn_list
+		print 'X_hat_list'
+		print X_hat_list
+		title = r'KalmanFilter on X0=1, P(V1=+-1)=P(W1=+-1)=1/2, N=%s, a=%s, e=%s, d=%s'%(chain_length, alpha, epsilon, delta)
+		figure_fname = 'hw10_2_N_%s_a_%s_e_%s_d_%s'%(chain_length, alpha, epsilon, delta)
+		self.plot(Xn_list, X_hat_list, Yn_list, title, figure_fname)
+		
+		title = r'KalmanFilter error on X0, V1, W1~N(0,1), N=%s, a=%s, e=%s, d=%s'%(chain_length, alpha, epsilon, delta)
+		figure_fname = 'hw10_2_error_N_%s_a_%s_e_%s_d_%s'%(chain_length, alpha, epsilon, delta)
+		self.plot_Pn(Pn_list, title, figure_fname)
+		
+	def test_simulate_decode(self):
+		chain_length = 201
+		alpha = 0.9
+		epsilon = 0.3
+		delta = 1
+		self.simulate_decode(chain_length, alpha, epsilon, delta)
+		
 if __name__ == '__main__':
 	if len(sys.argv) == 1:
 		print __doc__
@@ -1288,7 +1457,9 @@ if __name__ == '__main__':
 		8: Math508_HW7_1,
 		9: Math508_HW7_2,
 		10: Math508_HW8_a,
-		11: Math508_HW8_b}
+		11: Math508_HW8_b,
+		12: Math508_HW10_1,
+		13: Math508_HW10_2}
 	type = 0
 	for opt, arg in opts:
 		if opt in ("-h", "--help"):
