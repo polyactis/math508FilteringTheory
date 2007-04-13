@@ -24,6 +24,7 @@ Examples:
 11: Math508_HW8_b
 12: Math508_HW10_1
 13: Math508_HW10_2
+14: Math508_HW11_3
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -1434,7 +1435,72 @@ class Math508_HW10_2(KalmanFilter, unittest.TestCase):
 		epsilon = 0.3
 		delta = 1
 		self.simulate_decode(chain_length, alpha, epsilon, delta)
+
+class Math508_HW11_3(unittest.TestCase):
+	"""
+	2007-04-13
+	"""
+	def setUp(self):
+		print
+	
+	def simulate_eta_1_2(self, sigma_1, sigma_2):
+		import random
+		return (random.gauss(0,sigma_1*sigma_1), random.gauss(0, sigma_2*sigma_2))
+	
+	def simulate_real_part_of_theta_n_Xn_Yn(self, N, M, a, lambda_1, lambda_2, eta_1, eta_2):
+		sys.stderr.write("Simulating ...")
+		import math
+		Real_theta_n_list = []
+		Real_X_n_list = []
+		Real_Y_n_list = []
+		for i in range(0, N+1):
+			theta_n = eta_1*math.cos(lambda_1*i)
+			Real_theta_n_list.append(theta_n)
+			X_n = theta_n + eta_2*math.cos(lambda_2*i)
+			Real_X_n_list.append(X_n)
+			part_of_real_Y_n = 0
+			for j in range(0, M+1):
+				part_of_real_Y_n += eta_2*math.cos(lambda_2*i+(lambda_1-lambda_2)*j)
+			Real_Y_n = (1-a*a)*((M+1)*eta_1*math.cos(lambda_1*i)+part_of_real_Y_n)
+			Real_Y_n_list.append(Real_Y_n)
+		sys.stderr.write("Done.\n")
+		return Real_theta_n_list, Real_X_n_list, Real_Y_n_list
+	
+	def plot(self, Xn_list, Yn_list, label_list, title, figure_fname):
+		import pylab, Numeric
+		pylab.clf()
+		x_index_list = range(len(Xn_list))
+		pylab.plot(x_index_list, Xn_list, 'b')
+		pylab.plot(x_index_list, Yn_list, 'r')
+		pylab.title(r'%s'%title)
+		pylab.xlabel('n')
+		pylab.legend(label_list)
+		pylab.savefig('%s.svg'%figure_fname, dpi=200)
+		pylab.savefig('%s.eps'%figure_fname, dpi=200)
+		pylab.savefig('%s.png'%figure_fname, dpi=200)
+		pylab.show()
+
+	def test_simulate(self):
+		import math
+		sigma_1 = 1
+		sigma_2 = 2
+		N = 50
+		M = 10
+		a = 0.8
+		lambda_1 = math.pi/4
+		lambda_2 = math.pi*2/3
+		eta_1, eta_2 = self.simulate_eta_1_2(sigma_1, sigma_2)
+		Real_theta_n_list, Real_X_n_list, Real_Y_n_list = self.simulate_real_part_of_theta_n_Xn_Yn(N, M, a, lambda_1, lambda_2, eta_1, eta_2)
+		label_list = ['theta_n', 'Xn']
+		title = r'Real parts of theta_n, Xn, eta_1=%s, eta_2=%s'%(eta_1, eta_2)
+		figure_fname = 'hw11_3_theta_n_Xn'
+		self.plot(Real_theta_n_list, Real_X_n_list, label_list, title, figure_fname)
 		
+		label_list = ['theta_n', 'Yn']
+		title = r'Real parts of theta_n, Yn, eta_1=%s, eta_2=%s'%(eta_1, eta_2)
+		figure_fname = 'hw11_3_theta_n_Yn'
+		self.plot(Real_theta_n_list, Real_Y_n_list, label_list, title, figure_fname)
+
 if __name__ == '__main__':
 	if len(sys.argv) == 1:
 		print __doc__
@@ -1459,7 +1525,8 @@ if __name__ == '__main__':
 		10: Math508_HW8_a,
 		11: Math508_HW8_b,
 		12: Math508_HW10_1,
-		13: Math508_HW10_2}
+		13: Math508_HW10_2,
+		14: Math508_HW11_3}
 	type = 0
 	for opt, arg in opts:
 		if opt in ("-h", "--help"):
