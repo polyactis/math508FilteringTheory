@@ -25,6 +25,7 @@ Examples:
 12: Math508_HW10_1
 13: Math508_HW10_2
 14: Math508_HW11_3
+15: Math508_HW12_3
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -1501,6 +1502,145 @@ class Math508_HW11_3(unittest.TestCase):
 		figure_fname = 'hw11_3_theta_n_Yn'
 		self.plot(Real_theta_n_list, Real_Y_n_list, label_list, title, figure_fname)
 
+class Math508_HW12_3(unittest.TestCase):
+	"""
+	2007-04-22
+	"""
+	def setUp(self):
+		print
+	
+	def sample_W(self):
+		import random
+		return random.gauss(0,1)
+	
+	def sample_X_0(self):
+		import random
+		return random.gauss(7, 0.5)
+	
+	def simulate(self, sample_X_0, sample_V, sample_W, chain_length, a=1.004, b=0.06, sigma=2.0):
+		import sys
+		sys.stderr.write("Simulating ...")
+		Xn_list = []
+		Vn_list = []
+		Yn_list = []
+		Wn_list = []
+		for i in range(chain_length):
+			Vn = sample_V()
+			if i==0:
+				Xn = sample_X_0()
+			else:
+				Xn = a*Xn_list[i-1]+b*Xn_list[i-1]*Vn
+			Wn = sample_W()
+			Yn = Xn + sigma*Wn
+			Vn_list.append(Vn)
+			Xn_list.append(Xn)
+			Wn_list.append(Wn)
+			Yn_list.append(Yn)
+		sys.stderr.write("Done.\n")
+		return Vn_list, Xn_list, Wn_list, Yn_list
+	
+	def prob_func_Y_given_X(self, X_symbol, Y, sigma=2):
+		"""
+		Yn|Xn ~ N(Xn, 2^2)
+		"""
+		import swiginac
+		return 1/(sigma*swiginac.sqrt(2*swiginac.Pi))*swiginac.exp(-((Y-X_symbol)**2)/(2*sigma**2))
+	
+	def prob_func_X_0(self, X_symbol):
+		"""
+		X_0 ~ N(7, 0.5^2)
+		"""
+		import swiginac
+		return 2/(swiginac.sqrt(2*swiginac.Pi))*swiginac.exp(-2*((X_symbol-7)**2))
+	
+	def prob_func_X_given_X(self, old_X_symbol, new_X_symbol, a=1.004, b=0.06):
+		"""
+		Xn|Xn-1 ~ N(a*Xn-1, b*Xn-1)
+		"""
+		import swiginac
+		return 1/(a*old_X_symbol*swiginac.sqrt(2*swiginac.Pi))*swiginac.exp(-(new_X_symbol-a*old_X_symbol)**2/(2*(b*old_X_symbol)**2))
+	
+	def integral_by_riemann_sum(self, symbol, lower, upper, func, no_of_samples=1E3):
+		integral = 0
+		gap = (upper-lower)/no_of_samples
+		x_i_1 = lower
+		x_i = x_i_1 + gap
+		i = 0
+		while i<no_of_samples:
+			x = (x_i_1+x_i)/2
+			integral += func.subs(symbol==x)*gap
+			x_i_1 += gap
+			x_i += gap
+			i += 1
+		return integral
+	
+	def filter(self, Yn_list, prob_func_Y_given_X, prob_func_X_0,prob_func_X_given_X, X_integral_region=[-30, 40], a=1.004, b=0.06, sigma=2):
+		"""
+		2007-04-22
+			either integral_by_riemann_sum or swiginac.integral doesn't work
+			integral_by_riemann_sum encounters "Floating point underflow" or "Floating point overflow"
+			swiginac.integral doesn't solve multi integral (return the inner integral unevaluated)
+		"""
+		import sys, swiginac
+		sys.stderr.write("Filtering ...\n")
+		X_symbol_ls = []
+		fi_array = []
+		Xn_hat_list = []
+		for i in range(len(Yn_list)):
+			X_symbol_ls.append(swiginac.symbol("x%s"%i))
+			#import pdb
+			#pdb.set_trace()
+			if i==0:
+				fi_array.append(prob_func_Y_given_X(X_symbol_ls[i], Yn_list[i], sigma)*prob_func_X_0(X_symbol_ls[i]))
+			else:
+				fi_int_part = self.integral_by_riemann_sum(X_symbol_ls[i-1], X_integral_region[0], X_integral_region[1], prob_func_X_given_X(X_symbol_ls[i-1], X_symbol_ls[i], a, b)*fi_array[i-1])
+				fi_func = prob_func_Y_given_X(X_symbol_ls[i], Yn_list[i], sigma)*fi_int_part.evalf()
+				fi_func.evalf()
+				fi_array.append(fi_func)
+			Xn_hat = swiginac.integral(X_symbol_ls[i], X_integral_region[0], X_integral_region[1], X_symbol_ls[i]*fi_array[i])/swiginac.integral(X_symbol_ls[i], X_integral_region[0], X_integral_region[1], fi_array[i])
+			Xn_hat_list.append(Xn_hat.evalf())
+			sys.stderr.write("%s%s"%('\x08'*10, i))
+		sys.stderr.write("Done.\n")
+		return Xn_hat_list
+	
+	def plot(self, Xn_list, X_hat_list, Yn_list, title, figure_fname):
+		import pylab, Numeric
+		pylab.clf()
+		x_index_list = range(len(Xn_list))
+		pylab.plot(x_index_list, Xn_list, 'b')
+		pylab.plot(x_index_list, X_hat_list, 'g')
+		pylab.plot(x_index_list, Yn_list, 'r')
+		pylab.title(r'%s'%title)
+		pylab.xlabel('n')
+		label_list = ['Xn_list', 'Xn_hat_list', 'Yn_list']
+		pylab.legend(label_list)
+		pylab.savefig('%s.svg'%figure_fname, dpi=200)
+		pylab.savefig('%s.eps'%figure_fname, dpi=200)
+		pylab.savefig('%s.png'%figure_fname, dpi=200)
+		#pylab.show()
+	
+	def test_simulate_filter(self):
+		chain_length = 251
+		a = 1.004
+		b = 0.06
+		sigma = 2
+		Vn_list, Xn_list, Wn_list, Yn_list = self.simulate(self.sample_X_0, self.sample_W, self.sample_W, chain_length, a, b, sigma)
+		print 'Vn_list'
+		print Vn_list
+		print 'Xn_list'
+		print Xn_list
+		print 'Wn_list'
+		print Wn_list
+		print 'Yn_list'
+		print Yn_list
+		X_integral_region = [-30, 40]
+		X_hat_list = self.filter(Yn_list, self.prob_func_Y_given_X, self.prob_func_X_0, self.prob_func_X_given_X, X_integral_region, a, b, sigma)
+		print 'X_hat_list'
+		print X_hat_list
+		title = r'Homework 12, No 3. continuous state space filtering'
+		figure_fname = 'hw12_3'
+		self.plot(Xn_list, X_hat_list, Yn_list, title, figure_fname)
+	
 if __name__ == '__main__':
 	if len(sys.argv) == 1:
 		print __doc__
@@ -1526,7 +1666,8 @@ if __name__ == '__main__':
 		11: Math508_HW8_b,
 		12: Math508_HW10_1,
 		13: Math508_HW10_2,
-		14: Math508_HW11_3}
+		14: Math508_HW11_3,
+		15: Math508_HW12_3}
 	type = 0
 	for opt, arg in opts:
 		if opt in ("-h", "--help"):
