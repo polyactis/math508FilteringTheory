@@ -1603,6 +1603,58 @@ class Math508_HW12_3(unittest.TestCase):
 		sys.stderr.write("Done.\n")
 		return Xn_hat_list
 	
+	def normal_density(self, X, mean, sd):
+		"""
+		2007-04-23
+			rpy.r.dnorm() sometimes return NaN
+		"""
+		import math
+		return 1/(sd*math.sqrt(2*math.pi))*math.exp(-(X-mean)*(X-mean)/(2.0*sd*sd))
+	
+	def prob_Y_given_X(self, X, Y, sigma=2):
+		return self.normal_density(Y, X, sigma)
+	
+	def prob_X_given_X(self, old_X, new_X, a=1.004, b=0.06):
+		return self.normal_density(new_X, a*old_X, abs(b*old_X))
+	
+	def prob_X_0(self, X):
+		return self.normal_density(X, 7, 0.5)
+	
+	def filter_by_discretization(self, Yn_list, prob_Y_given_X, prob_X_given_X, prob_X_0, X_integral_region=[-30, 40], gap=0.01, a=1.004, b=0.06, sigma=2):
+		import sys, Numeric
+		sys.stderr.write("Filtering ...\n")
+		X_array = []
+		x_i = X_integral_region[0]
+		while x_i < X_integral_region[1]:
+			X_array.append(x_i)
+			x_i+= gap
+		no_of_X_states = len(X_array)
+		no_of_Yns = len(Yn_list)
+		fi_array = Numeric.zeros([no_of_Yns, no_of_X_states], Numeric.Float)
+		numerator = 0.0
+		denominator = 0.0
+		Xn_hat_list = []
+		import pdb
+		#pdb.set_trace()
+		for i in range(no_of_X_states):
+			fi_array[0, i] = prob_Y_given_X(X_array[i], Yn_list[0])*prob_X_0(X_array[i])
+			numerator += X_array[i]*fi_array[0,i]
+			denominator += fi_array[0,i]
+		Xn_hat_list.append(numerator/denominator)
+		#pdb.set_trace()
+		for i in range(1,no_of_Yns):
+			numerator = 0.0
+			denominator = 0.0
+			for j in range(no_of_X_states):
+				for k in range(no_of_X_states):
+					fi_array[i,j] += prob_Y_given_X(X_array[j], Yn_list[i])*prob_X_given_X(X_array[k], X_array[j])*fi_array[i-1,k]*gap
+				numerator += X_array[j]*fi_array[i,j]
+				denominator += fi_array[i,j]
+			Xn_hat_list.append(numerator/denominator)
+			sys.stderr.write("%s%s"%('\x08'*10, i))
+		sys.stderr.write("Done.\n")
+		return Xn_hat_list
+	
 	def plot(self, Xn_list, X_hat_list, Yn_list, title, figure_fname):
 		import pylab, Numeric
 		pylab.clf()
@@ -1619,6 +1671,12 @@ class Math508_HW12_3(unittest.TestCase):
 		pylab.savefig('%s.png'%figure_fname, dpi=200)
 		#pylab.show()
 	
+	def calculate_mse(self, Xn_list, Xn_hat_list):
+		import Numeric
+		diff_array = Numeric.array(Xn_list)-Numeric.array(Xn_hat_list)
+		mse = sum(diff_array*diff_array)/(len(Xn_list))
+		return mse
+	
 	def test_simulate_filter(self):
 		chain_length = 251
 		a = 1.004
@@ -1633,13 +1691,16 @@ class Math508_HW12_3(unittest.TestCase):
 		print Wn_list
 		print 'Yn_list'
 		print Yn_list
-		X_integral_region = [-30, 40]
-		X_hat_list = self.filter(Yn_list, self.prob_func_Y_given_X, self.prob_func_X_0, self.prob_func_X_given_X, X_integral_region, a, b, sigma)
-		print 'X_hat_list'
-		print X_hat_list
-		title = r'Homework 12, No 3. continuous state space filtering'
-		figure_fname = 'hw12_3'
-		self.plot(Xn_list, X_hat_list, Yn_list, title, figure_fname)
+		X_integral_region = [-20, 30]
+		gap = 0.15	#gap=0.5 could easily results in zero float division in normal_density()
+		Xn_hat_list = self.filter_by_discretization(Yn_list, self.prob_Y_given_X, self.prob_X_given_X, self.prob_X_0, X_integral_region, gap, a, b, sigma)
+		#X_hat_list = self.filter(Yn_list, self.prob_func_Y_given_X, self.prob_func_X_0, self.prob_func_X_given_X, X_integral_region, a, b, sigma)
+		mse = self.calculate_mse(Xn_list, Xn_hat_list)
+		print 'Xn_hat_list:', Xn_hat_list
+		print 'mse:', mse
+		title = r'Hw12, No 3. continuous state space filtering. gap=%s, mse=%2.4f'%(gap, mse)
+		figure_fname = 'hw12_3_gap_%s'%(gap)
+		self.plot(Xn_list, Xn_hat_list, Yn_list, title, figure_fname)
 	
 if __name__ == '__main__':
 	if len(sys.argv) == 1:
