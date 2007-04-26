@@ -1580,6 +1580,7 @@ class Math508_HW12_3(unittest.TestCase):
 			either integral_by_riemann_sum or swiginac.integral doesn't work
 			integral_by_riemann_sum encounters "Floating point underflow" or "Floating point overflow"
 			swiginac.integral doesn't solve multi integral (return the inner integral unevaluated)
+		2007-04-23 deprecated
 		"""
 		import sys, swiginac
 		sys.stderr.write("Filtering ...\n")
@@ -1621,6 +1622,10 @@ class Math508_HW12_3(unittest.TestCase):
 		return self.normal_density(X, 7, 0.5)
 	
 	def filter_by_discretization(self, Yn_list, prob_Y_given_X, prob_X_given_X, prob_X_0, X_integral_region=[-30, 40], gap=0.01, a=1.004, b=0.06, sigma=2):
+		"""
+		2007-04-23
+			use discretization and Riemann-sum to solve the integral
+		"""
 		import sys, Numeric
 		sys.stderr.write("Filtering ...\n")
 		X_array = []
@@ -1654,6 +1659,88 @@ class Math508_HW12_3(unittest.TestCase):
 			sys.stderr.write("%s%s"%('\x08'*10, i))
 		sys.stderr.write("Done.\n")
 		return Xn_hat_list
+	
+	def sample_X_0(self):
+		"""
+		2007-04-24
+			for SIR
+		"""
+		import random
+		return random.gauss(7, 0.5)
+	
+	def sample_X_given_X(self, old_X, a=1.004, b=0.06):
+		"""
+		2007-04-24
+			for SIR
+		"""
+		import random
+		return random.gauss(a*old_X, abs(b*old_X))
+	
+	def resampling_by_residual_sampling(self, signal_X_matrix, trace_matrix, importance_vector, index, sum_importance):
+		import Numeric, random, math
+		no_of_samplings = len(importance_vector)
+		residual_importance_vector = Numeric.zeros(no_of_samplings, Numeric.Float)
+		no_of_samples_sampled_so_far = 0
+		i = 0
+		cumulative_df_ls = []
+		while i<no_of_samplings:
+			importance_vector[i] = importance_vector[i]/sum_importance
+			no_of_copies_for_i = int(math.floor(no_of_samplings*importance_vector[i]))
+			for j in range(no_of_copies_for_i):
+				signal_X_matrix[2*index+1, no_of_samples_sampled_so_far] = signal_X_matrix[2*index, i]
+				trace_matrix[2*index+1, no_of_samples_sampled_so_far] = i
+				no_of_samples_sampled_so_far += 1
+			residual_importance_vector[i] = no_of_samplings*importance_vector[i] - no_of_copies_for_i
+			if i==0:
+				cumulative_df_ls.append(residual_importance_vector[i])
+			else:
+				cumulative_df_ls.append(cumulative_df_ls[i-1]+residual_importance_vector[i])
+			i += 1
+		no_of_samples_left = no_of_samplings - no_of_samples_sampled_so_far
+		for i in range(no_of_samples_left):
+			u = random.random()*cumulative_df_ls[-1]	#cumulative_df_ls is not normalized
+			j = 0
+			while u > cumulative_df_ls[j]:
+				j+=1
+			signal_X_matrix[2*index+1, no_of_samples_sampled_so_far+i] = signal_X_matrix[2*index, j]
+			trace_matrix[2*index+1, no_of_samples_sampled_so_far+i] = j
+	
+	def filter_by_SIR(self, Yn_list, sample_X_given_X, sample_X_0, prob_Y_given_X,a=1.004, b=0.06, sigma=2, no_of_samplings=int(1E4)):
+		"""
+		2007-04-24
+			sequential importance resampling (SIR) (theoretic stuff see hw12.tex)
+		"""
+		import sys, Numeric
+		sys.stderr.write("Filtering ...\n")
+		no_of_Yns = len(Yn_list)
+		signal_X_matrix = Numeric.zeros([2*no_of_Yns-1, no_of_samplings], Numeric.Float)
+		trace_matrix = Numeric.zeros([2*no_of_Yns-1, no_of_samplings], Numeric.Int)
+		importance_vector = Numeric.zeros(no_of_samplings, Numeric.Float)
+		stepwise_Xn_hat_list = []
+		#import pdb
+		#pdb.set_trace()
+		for i in range(no_of_Yns):
+			j= 0
+			stepwise_Xn_hat = 0.0
+			sum_importance = 0.0
+			while j<no_of_samplings:
+				if i==0:
+					x_sample = sample_X_0()
+				else:
+					x_sample = sample_X_given_X(signal_X_matrix[2*i-1,j], a, b)
+				signal_X_matrix[2*i,j] = x_sample
+				trace_matrix[2*i,j] = j
+				importance_vector[j] = prob_Y_given_X(x_sample, Yn_list[i], sigma)
+				stepwise_Xn_hat += x_sample*importance_vector[j]
+				sum_importance += importance_vector[j]
+				j += 1
+			stepwise_Xn_hat = stepwise_Xn_hat/sum_importance
+			stepwise_Xn_hat_list.append(stepwise_Xn_hat)
+			if i!=no_of_Yns-1:	#the last step doesn't need to do resampling
+				self.resampling_by_residual_sampling(signal_X_matrix, trace_matrix, importance_vector, i, sum_importance)
+			sys.stderr.write("%s%s"%('\x08'*10, i))
+		sys.stderr.write("Done.\n")
+		return stepwise_Xn_hat_list
 	
 	def plot(self, Xn_list, X_hat_list, Yn_list, title, figure_fname):
 		import pylab, Numeric
@@ -1691,6 +1778,7 @@ class Math508_HW12_3(unittest.TestCase):
 		print Wn_list
 		print 'Yn_list'
 		print Yn_list
+		"""
 		X_integral_region = [-20, 30]
 		gap = 0.15	#gap=0.5 could easily results in zero float division in normal_density()
 		Xn_hat_list = self.filter_by_discretization(Yn_list, self.prob_Y_given_X, self.prob_X_given_X, self.prob_X_0, X_integral_region, gap, a, b, sigma)
@@ -1701,7 +1789,16 @@ class Math508_HW12_3(unittest.TestCase):
 		title = r'Hw12, No 3. continuous state space filtering. gap=%s, mse=%2.4f'%(gap, mse)
 		figure_fname = 'hw12_3_gap_%s'%(gap)
 		self.plot(Xn_list, Xn_hat_list, Yn_list, title, figure_fname)
-	
+		"""
+		no_of_samplings = int(1E4)
+		Xn_hat_list = self.filter_by_SIR(Yn_list, self.sample_X_given_X, self.sample_X_0, self.prob_Y_given_X, a=1.004, b=0.06, sigma=2, no_of_samplings=no_of_samplings)
+		mse = self.calculate_mse(Xn_list, Xn_hat_list)
+		print 'Xn_hat_list:', Xn_hat_list
+		print 'mse:', mse
+		title = r'Hw12, No 3. continuous state space filtering by SIR(%s), mse=%2.4f'%(no_of_samplings, mse)
+		figure_fname = 'hw12_3_SIR_%s'%(no_of_samplings)
+		self.plot(Xn_list, Xn_hat_list, Yn_list, title, figure_fname)
+		
 if __name__ == '__main__':
 	if len(sys.argv) == 1:
 		print __doc__
