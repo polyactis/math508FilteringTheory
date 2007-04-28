@@ -52,7 +52,7 @@ The algorithm looks like
 \begin{itemize}
 \item sample $x_t^i$ from $P(X_t|X_{t-1})$ for $i=1,...,n$
 \item weight each sample by $w(x_t^i) = P(Y_t|x_t^i)$
-\item estimate is $\hat{x}_t = \sum_{i=1}^n x_t^i*w(x_t^i)$. Note: it's not the $x_t^i$ with maximum weight.
+\item estimate is $\hat{x}_t = \sum_{i=1}^n x_t^i*w(x_t^i)$. Note: it's not the $x_t^i$ with maximum weight cuz it simply picks the one closest to the observation, $Y_t$.
 \item resample from $\{x_t^1, ..., x_t^n\}$ with probability proportional to $w(x_t^i)$ to produce a random sample $\{x_t^{*1}, ..., x_t^{*n}\}$
 \end{itemize}
 
