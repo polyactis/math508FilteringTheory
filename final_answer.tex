@@ -130,19 +130,28 @@ The idea is to get $\hat{H_n}$, only need information up to $Y_n$ because $H_n =
 Figure~(\ref{f1}, \ref{f2}, \ref{f3}, \ref{f4}) are due to \emph{procedure 1}. Figure~(\ref{f5}, \ref{f6}, \ref{f7}, \ref{f8}) are due to \emph{procedure 2}. Figure~\ref{f5} from \emph{procedure 2} has smaller MSE than Figure~\ref{f1} from \emph{procedure 1}. By checking closely, you can actually see $\hat{X_n}$ in Figure~\ref{f1} is a little bit lagging behind $\hat{X_n}$ in Figure~\ref{f5}. This lagging phenomenon is due to the one-step-prediction in \emph{procedure 1}. It's evident in other figures as well.
 
 \section{Problem 4}
-By checking the notes, i realized there're some errors in both the notes and the hints although it won't hurt the result if $\frac{\alpha_{t_{i+1}}}{\alpha_{t_i}}$ is calculated approximately. Most errors are due to the swapping of $\lambda_1$ and $\lambda_2$ which depends on how to split the Ricotti equation. So assume Ricotti equation is split in the way following
+By checking the notes, i realized there're some errors in both the notes and the hints although it won't hurt the result if $\frac{\alpha_{t_{i+1}}}{\alpha_{t_i}}$ is calculated approximately. Most errors are due to the swapping of $\lambda_1$ and $\lambda_2$ which depends on how to split the Ricotti equation. Ricotti equation is
 \begin{eqnarray}
 \lambda_1 = {(a^2B^4+b^2B^2)}^{1/2}+aB^2 \\
 \lambda_2 = -{(a^2B^4+b^2B^2)}^{1/2}+aB^2 \\
-\frac{dP}{dt} = \frac{C}{P - \lambda_1} - \frac{C}{P-\lambda_2}
+\frac{dP}{dt} = 2aP_t + b^2 - \frac{P_t^2}{B^2}
+\end{eqnarray}
+So assume Ricotti equation is split in the way following
+\begin{eqnarray}
+\Rightarrow  \nonumber \\
+\frac{dt}{dP} = \frac{C}{P - \lambda_1} - \frac{C}{P-\lambda_2} = \frac{-B^2}{(P^2-2aB^2P-b^2B^2)} \\
+\Rightarrow C = \frac{B^2}{\lambda_2-\lambda_1} \label{eqn_C} \\
+\Rightarrow Cln|\frac{P-\lambda_1}{P-\lambda_2}| = t + const \\
+\Rightarrow |\frac{P-\lambda_1}{P-\lambda_2}| = Ke^{t/C} \\
+\Rightarrow t=0, K=|\frac{P_0-\lambda_1}{P_0-\lambda_2}|
 \end{eqnarray}
 
-Then all the formulas should be
+With $P_0 = 0 < \lambda_1 $, we'll get
 \begin{eqnarray}
-\alpha_t = exp\{(a-B^{-2}\lambda_1)t\}\frac{(K+1)e^{t/C}}{Ke^{t/C}+1} \\
-P_t = \lambda_2 + \frac{\lambda_1 - \lambda_2}{1+Ke^{t/C}} \\
-C = \frac{B^2}{\lambda_1 - \lambda_2} \\
-K = \frac{\lambda_1}{-\lambda_2}
+K = \frac{\lambda_1}{-\lambda_2} \\
+\frac{P-\lambda_1}{P-\lambda_2} = -Ke^{t/C} \\
+\Rightarrow P_t = \frac{\lambda_2Ke^{t/C}+\lambda_1}{Ke^{t/C}+1} = \lambda_2 + \frac{\lambda_1 - \lambda_2}{1+Ke^{t/C}} \\
+\alpha_t = exp\{\int_0^t(a-\frac{P_s}{B^2})ds\} = exp\{(a-B^{-2}\lambda_1)t\}\frac{(K+1)e^{t/C}}{Ke^{t/C}+1}
 \end{eqnarray}
 
 One thing about $\alpha_t$, i'm not sure it should be $\lambda_1$ or $\lambda_2$ in the formula (i can't work out the complex integral.) So when calculating $\frac{\alpha_{t_{i+1}}}{\alpha_{t_i}}$, i tried both of them, calling them ${exactratio}_1$ and ${exactratio}_2$ and compared with the approximated version, which is
@@ -150,7 +159,7 @@ One thing about $\alpha_t$, i'm not sure it should be $\lambda_1$ or $\lambda_2$
 \frac{\alpha_{t_{i+1}}}{\alpha_{t_i}} \approx exp\{(a-\frac{P_{t_i}}{B^2})\delta t)\}
 \end{equation}
 
-So in figure~\ref{f9}, the ${exactratio}_1$ is the correct formula as it's closer to the approximated ratio. So Figure~(\ref{f10}, \ref{f11}, \ref{f12}, \ref{f13}) are for different settings. The $\hat{X_n}$ is calculated using both the approximated $\frac{\alpha_{t_{i+1}}}{\alpha_{t_i}}$ and the exact one. Interestingly, $\hat{X_n}$ based on the approximated ratio (red curve) has smaller MSE than $\hat{X_n}$ based on the exact ratio (cyan curve) although most of the time, they overlap a lot.
+So in figure~\ref{f9}, the ${exactratio}_1$ is the correct formula as it's closer to the approximated ratio. So Figure~(\ref{f10}, \ref{f11}, \ref{f12}, \ref{f13}) are for different settings. The $\hat{X_n}$ is calculated using both the approximated $\frac{\alpha_{t_{i+1}}}{\alpha_{t_i}}$ and the exact one. Previously, due to the opposite sign of $C$, $\hat{X_n}$ based on the approximated ratio (red curve) has smaller MSE than $\hat{X_n}$ based on the exact ratio (cyan curve). Now with the correct formula for $C$ (\ref{eqn_C}), $\hat{X_n}$ based on the exact ratio (cyan curve) has smaller MSE, which is within expectation.
 
 \section{Figures}
 \begin{figure}
