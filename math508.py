@@ -26,6 +26,8 @@ Examples:
 13: Math508_HW10_2
 14: Math508_HW11_3
 15: Math508_HW12_3
+16: Math508_Final_Exam_3
+17: Math508_Final_Exam_4
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -1798,7 +1800,505 @@ class Math508_HW12_3(unittest.TestCase):
 		title = r'Hw12, No 3. continuous state space filtering by SIR(%s), mse=%2.4f'%(no_of_samplings, mse)
 		figure_fname = 'hw12_3_SIR_%s'%(no_of_samplings)
 		self.plot(Xn_list, Xn_hat_list, Yn_list, title, figure_fname)
+
+class Math508_Final_Exam_3(unittest.TestCase):
+	"""
+	2007-05-06
+	"""
+	def setUp(self):
+		print
+	
+	def sample_W(self):
+		import random
+		return random.gauss(0,1)
+	
+	def sample_X_0(self):
+		import random
+		return random.gauss(0, 0.1)
+	
+	def simulate(self, sample_X_0, sample_V, sample_W, chain_length, h=0.01):
+		import sys, math
+		sys.stderr.write("Simulating ...")
+		Xn_list = []
+		Vn_list = []
+		Yn_list = []
+		Wn_list = []
+		for i in range(chain_length):
+			Vn = sample_V()
+			if i==0:
+				Xn = sample_X_0()
+			else:
+				Xn = Xn_list[i-1]+0.1*math.cos(2*Xn_list[i-1])*h + 0.14*math.sqrt(h)*Vn
+			Wn = sample_W()
+			Yn = math.atan(Xn)*h + 0.04*math.sqrt(h)*Wn
+			Vn_list.append(Vn)
+			Xn_list.append(Xn)
+			Wn_list.append(Wn)
+			Yn_list.append(Yn)
+		sys.stderr.write("Done.\n")
+		return Vn_list, Xn_list, Wn_list, Yn_list
+	
+	def normal_density(self, X, mean, sd):
+		"""
+		2007-04-23
+			rpy.r.dnorm() sometimes return NaN
+		"""
+		import math
+		return 1/(sd*math.sqrt(2*math.pi))*math.exp(-(X-mean)*(X-mean)/(2.0*sd*sd))
+	
+	def cal_inverse_lambda_func(self, Y, X, h, sigma_square):
+		import math
+		c_r = math.atan(X)*h
+		exponent = c_r*Y/sigma_square - (c_r*c_r)/(2*sigma_square)
+		return math.exp(exponent)
+	
+	def prob_X_given_X(self, old_X, new_X, h=0.01):
+		import math
+		return self.normal_density(new_X, old_X+0.1*math.cos(2*old_X)*h, abs(0.14*math.sqrt(h)))
+	
+	def prob_X_0(self, X):
+		return self.normal_density(X, 0, 0.1)
+	
+	def filter_by_discretization(self, Yn_list, cal_inverse_lambda_func, prob_X_given_X, prob_X_0, X_integral_region=[-1, 1], gap=0.01, h=0.01):
+		"""
+		2007-05-06
+			Yn_list[0] is 0 (place holder)
+			use discretization and Riemann-sum to solve the integral
+		"""
+		import sys, Numeric
+		sys.stderr.write("Filtering ...\n")
+		X_array = []
+		x_i = X_integral_region[0]
+		while x_i < X_integral_region[1]:
+			X_array.append(x_i)
+			x_i+= gap
+		no_of_X_states = len(X_array)
+		no_of_Yns = len(Yn_list)
+		#the last row, no_of_Yns+1 is only for Hn_hat_list, not for Xn_hat_list
+		gamma_array = Numeric.zeros([no_of_Yns, no_of_X_states], Numeric.Float)
+		numerator = 0.0
+		denominator = 0.0
+		Xn_hat_list = []
+		max_post_prob_Xn_hat_list = []
+		#note H_n = \sum_{k=1}^{k=n} X_{k-1}, so H_{n+1} would include X_n
+		gamma_H_array = Numeric.zeros([no_of_Yns, no_of_X_states], Numeric.Float)
+		Hn_hat_list = [0]	#the first one is 0
 		
+		#the normalized FDF
+		pi_array = Numeric.zeros([no_of_Yns-1, no_of_X_states], Numeric.Float)
+		
+		sigma_square = 0.04*0.04*h	#for cal_inverse_lambda_func
+		#import pdb
+		#pdb.set_trace()
+		for i in range(no_of_X_states):	#gamma_H_array[0] is all zero, already intialized
+			gamma_array[0, i] = prob_X_0(X_array[i])
+			numerator += X_array[i]*gamma_array[0,i]
+			denominator += gamma_array[0,i]
+		max_post_prob_Xn_index = Numeric.argmax(gamma_array[0])
+		max_post_prob_Xn_hat_list.append(X_array[max_post_prob_Xn_index])
+		Xn_hat_list.append(numerator/denominator)
+		pi_array[0] = gamma_array[0]/denominator
+		#pdb.set_trace()
+		for i in range(1,no_of_Yns):
+			numerator = 0.0
+			denominator = 0.0
+			numerator_H = 0.0
+			#denominator_H = 0.0	#same as denominator
+			for j in range(no_of_X_states):
+				for k in range(no_of_X_states):
+					p_x_given_x = prob_X_given_X(X_array[k], X_array[j])
+					inverse_lambda = cal_inverse_lambda_func(Yn_list[i], X_array[k], h, sigma_square)	#index of Yn_list is i
+					gamma_array[i,j] += p_x_given_x*inverse_lambda*gamma_array[i-1,k]*gap
+					gamma_H_array[i,j] += p_x_given_x*inverse_lambda*(gamma_H_array[i-1,k] + X_array[k]*gamma_array[i-1,k])*gap
+				numerator += X_array[j]*gamma_array[i,j]
+				numerator_H += gamma_H_array[i,j]
+				denominator += gamma_array[i,j]
+			if i!=no_of_Yns-1:	#Xn_hat_list doesn't need the last one, which is X_{n+1}
+				max_post_prob_Xn_index = Numeric.argmax(gamma_array[i])
+				max_post_prob_Xn_hat_list.append(X_array[max_post_prob_Xn_index])
+				Xn_hat_list.append(numerator/denominator)
+				pi_array[i] = gamma_array[i]/denominator
+			Hn_hat_list.append(numerator_H/denominator)
+			sys.stderr.write("%s%s"%('\x08'*10, i))
+		sys.stderr.write("Done.\n")
+		return Xn_hat_list, Hn_hat_list, max_post_prob_Xn_hat_list, pi_array
+	
+	def filter_by_discretization_corrected(self, Yn_list, cal_inverse_lambda_func, prob_X_given_X, prob_X_0, X_integral_region=[-1, 1], gap=0.01, h=0.01):
+		"""
+		2007-05-06
+			use discretization and Riemann-sum to solve the integral
+			difference from filter_by_discretization()
+				filter_by_discretization() is Xn|Y_[1,n], (one step of prediction considering the dependency structure, Y_{n+1} depends on Xn
+				filter_by_discretization_corrected() is Xn|Y_[1,n+1]
+			
+			detail formulas see final_answer.tex
+		"""
+		import sys, Numeric
+		sys.stderr.write("Filtering ...\n")
+		X_array = []
+		x_i = X_integral_region[0]
+		while x_i < X_integral_region[1]:
+			X_array.append(x_i)
+			x_i+= gap
+		no_of_X_states = len(X_array)
+		no_of_Yns = len(Yn_list)
+		#the last row, no_of_Yns+1 is only for Hn_hat_list, not for Xn_hat_list
+		gamma_array = Numeric.zeros([no_of_Yns, no_of_X_states], Numeric.Float)
+		numerator = 0.0
+		denominator = 0.0
+		Xn_hat_list = []
+		max_post_prob_Xn_hat_list = []
+		#note H_n = \sum_{k=1}^{k=n} X_{k-1}, so H_{n+1} would include X_n
+		gamma_H_array = Numeric.zeros([no_of_Yns, no_of_X_states], Numeric.Float)
+		Hn_hat_list = [0]	#the first one is 0
+		#import pdb
+		#pdb.set_trace()
+		
+		#the normalized FDF
+		pi_array = Numeric.zeros([no_of_Yns-1, no_of_X_states], Numeric.Float)
+		
+		sigma_square = 0.04*0.04*h	#for cal_inverse_lambda_func
+		
+		for i in range(no_of_X_states):	#gamma_H_array[0] is all zero, already intialized
+			gamma_array[0, i] = cal_inverse_lambda_func(Yn_list[1], X_array[i], h, sigma_square)*prob_X_0(X_array[i])	#index for Yn_list is 1
+			numerator += X_array[i]*gamma_array[0,i]
+			denominator += gamma_array[0,i]
+		max_post_prob_Xn_index = Numeric.argmax(gamma_array[0])
+		max_post_prob_Xn_hat_list.append(X_array[max_post_prob_Xn_index])
+		Xn_hat_list.append(numerator/denominator)
+		pi_array[0] = gamma_array[0]/denominator
+		#pdb.set_trace()
+		
+		for i in range(1,no_of_Yns):
+			numerator = 0.0
+			denominator = 0.0
+			numerator_H = 0.0
+			denominator_H = 0.0	#different from denominator
+			if i!=no_of_Yns-1:	#Xn_hat_list doesn't need the last one, which is X_{n+1}
+				for j in range(no_of_X_states):
+					for k in range(no_of_X_states):
+						p_x_given_x = prob_X_given_X(X_array[k], X_array[j])
+						inverse_lambda = cal_inverse_lambda_func(Yn_list[i+1], X_array[j], h, sigma_square)	#note: i+1 is the index of Yn_list
+						gamma_array[i,j] += p_x_given_x*inverse_lambda*gamma_array[i-1,k]*gap
+					numerator += X_array[j]*gamma_array[i,j]
+					denominator += gamma_array[i,j]
+				max_post_prob_Xn_index = Numeric.argmax(gamma_array[i])
+				max_post_prob_Xn_hat_list.append(X_array[max_post_prob_Xn_index])
+				Xn_hat_list.append(numerator/denominator)
+				pi_array[i] = gamma_array[i]/denominator
+			for j in range(no_of_X_states):
+				for k in range(no_of_X_states):
+					p_x_given_x = prob_X_given_X(X_array[k], X_array[j])
+					inverse_lambda = cal_inverse_lambda_func(Yn_list[i], X_array[j], h, sigma_square)	#note: i is the index of Yn_list
+					gamma_H_array[i,j] += p_x_given_x*inverse_lambda*gamma_H_array[i-1,k]*gap 
+				gamma_H_array[i,j] += X_array[j]*gamma_array[i-1,j]
+				numerator_H += gamma_H_array[i,j]
+				denominator_H += gamma_array[i-1,j]
+			Hn_hat_list.append(numerator_H/denominator_H)
+			sys.stderr.write("%s%s"%('\x08'*10, i))
+		sys.stderr.write("Done.\n")
+		return Xn_hat_list, Hn_hat_list, max_post_prob_Xn_hat_list, pi_array
+	
+	def cal_U_list_given_Y_list(self, Yn_list):
+		"""
+		2007-05-06
+			U_0 = 0
+			Y_{n+1} = U_{n+1} - U_n
+		"""
+		Un_list = [0]
+		for i in range(1, len(Yn_list)):
+			Un_list.append(Un_list[i-1]+Yn_list[i])
+		return Un_list
+	
+	def cal_H_list_given_X_list(self, Xn_list):
+		"""
+		2007-05-06
+			H_n = \sum_{k=1}^{k=n} X_{k-1}, so H_{n+1} would include X_n
+			H_0=0
+		"""
+		Hn_list = [0]
+		for i in range(1, len(Xn_list)+1):
+			Hn_list.append(Hn_list[i-1] + Xn_list[i-1])
+		return Hn_list
+	
+	def plot(self, list_of_data_ls, label_list, title, figure_fname):
+		import pylab, Numeric
+		pylab.clf()
+		x_index_list = range(len(list_of_data_ls[0]))
+		color_list = ['b','g','r']
+		for i in range(len(list_of_data_ls)):
+			pylab.plot(x_index_list, list_of_data_ls[i], color_list[i])
+		pylab.title(r'%s'%title)
+		pylab.xlabel('n')
+		pylab.legend(label_list)
+		pylab.savefig('%s.svg'%figure_fname, dpi=200)
+		pylab.savefig('%s.eps'%figure_fname, dpi=200)
+		pylab.savefig('%s.png'%figure_fname, dpi=200)
+		pylab.show()
+	
+	def plot3D_pi_array(self, pi_array, X_integral_region, gap, title, figure_fname):
+		"""
+		2007-05-07
+			matplotlib version >= 0.87.5
+		"""
+		import pylab
+		import matplotlib.axes3d as p3
+		pylab.clf()
+		n = pylab.arange(pi_array.shape[0])
+		x = pylab.arange(X_integral_region[0], X_integral_region[1], gap)
+		X,N = pylab.meshgrid(x,n)
+		fig=pylab.figure()
+		ax = p3.Axes3D(fig)
+		ax.plot_wireframe(N, X, pi_array)
+		ax.set_xlabel('n')
+		ax.set_ylabel('X')
+		ax.set_zlabel('pi')
+		pylab.title(title)
+		pylab.savefig('%s.svg'%figure_fname, dpi=200)
+		pylab.savefig('%s.eps'%figure_fname, dpi=200)
+		pylab.savefig('%s.png'%figure_fname, dpi=200)
+		pylab.show()
+	
+	def calculate_mse(self, Xn_list, Xn_hat_list):
+		import Numeric
+		diff_array = Numeric.array(Xn_list)-Numeric.array(Xn_hat_list)
+		mse = sum(diff_array*diff_array)/(len(Xn_list))
+		return mse
+	
+	def filter_wrapper(self, filter_func, Xn_list, Yn_list, h, figure_output_fname_prefix='Final_3'):
+		X_integral_region = [-1, 1]
+		gap = 0.01
+		Xn_hat_list, Hn_hat_list, max_post_prob_Xn_hat_list, pi_array = filter_func(Yn_list, self.cal_inverse_lambda_func, self.prob_X_given_X, self.prob_X_0, X_integral_region, gap, h)
+		
+		mse = self.calculate_mse(Xn_list, Xn_hat_list)
+		print 'Xn_hat_list:', Xn_hat_list
+		print 'mse:', mse
+		title = r'%s cont. state space filtering. gap=%s, mse=%2.4f'%(figure_output_fname_prefix, gap, mse)
+		figure_fname = '%s_Xn_Un_Xn_hat_gap_%s'%(figure_output_fname_prefix, gap)
+		Un_list = self.cal_U_list_given_Y_list(Yn_list)
+		real_Un_list = Un_list[1:]	#discard the 1st 0
+		list_of_data_ls = [Xn_list, real_Un_list, Xn_hat_list]
+		label_list = ['Xn', 'Un', 'Xn_hat']
+		self.plot(list_of_data_ls, label_list, title, figure_fname)
+		
+		Hn_list = self.cal_H_list_given_X_list(Xn_list)
+		mse = self.calculate_mse(Hn_list, Hn_hat_list)
+		print 'Hn_hat_list:', Hn_hat_list
+		print 'mse:', mse
+		title = r'%s cont. state space filtering. gap=%s, mse=%2.4f'%(figure_output_fname_prefix, gap, mse)
+		figure_fname = '%s_Hn_Hn_hat_gap_%s'%(figure_output_fname_prefix, gap)
+		list_of_data_ls = [Hn_list, Hn_hat_list]
+		label_list = ['Hn', 'Hn_hat']
+		self.plot(list_of_data_ls, label_list, title, figure_fname)
+		
+		mse = self.calculate_mse(Xn_list, max_post_prob_Xn_hat_list)
+		print 'max_post_prob_Xn_hat_list:', max_post_prob_Xn_hat_list
+		print 'mse:', mse
+		title = r'%s cont. state space filtering. gap=%s, mse=%2.4f'%(figure_output_fname_prefix, gap, mse)
+		figure_fname = '%s_Xn_Xn_hat_Xn_hat_max_gap_%s'%(figure_output_fname_prefix, gap)
+		list_of_data_ls = [Xn_list, Xn_hat_list, max_post_prob_Xn_hat_list]
+		label_list = ['Xn', 'Xn_hat', 'Xn_hat_max']
+		self.plot(list_of_data_ls, label_list, title, figure_fname)
+		
+		title = '%s_3D of FDF'%figure_output_fname_prefix
+		figure_fname = '%s_3d_pi_FDF'%figure_output_fname_prefix
+		self.plot3D_pi_array(pi_array, X_integral_region, gap, title, figure_fname)
+	
+	def test_simulate_filter(self):
+		chain_length = 201
+		h = 0.01
+		Vn_list, Xn_list, Wn_list, real_Yn_list = self.simulate(self.sample_X_0, self.sample_W, self.sample_W, chain_length, h)
+		Yn_list = [0] + real_Yn_list	#to be compatible with the problem
+		print 'Vn_list'
+		print Vn_list
+		print 'Xn_list'
+		print Xn_list
+		print 'Wn_list'
+		print Wn_list
+		print 'Yn_list'
+		print Yn_list
+		figure_output_fname_prefix = 'Final_3'
+		self.filter_wrapper(self.filter_by_discretization, Xn_list, Yn_list, h, figure_output_fname_prefix)
+		figure_output_fname_prefix = 'Final_3_corrected'
+		self.filter_wrapper(self.filter_by_discretization_corrected, Xn_list, Yn_list, h, figure_output_fname_prefix)
+
+class Math508_Final_Exam_4(unittest.TestCase):
+	"""
+	2007-05-07
+	"""
+	def setUp(self):
+		print
+	
+	def sample_W(self):
+		import random
+		return random.gauss(0,1)
+	
+	def simulate(self, t_list, a, b, B, sample_V, sample_W, delta_t=0.01):
+		import sys, math
+		sys.stderr.write("Simulating ...")
+		Xn_list = [1]
+		Vn_list = []
+		Yn_list = [0]
+		Wn_list = []
+		for i in range(1, len(t_list)):
+			Vn = sample_V()
+			Xn = Xn_list[i-1]*(1+a*delta_t) + b*math.sqrt(delta_t)*Vn
+			Wn = sample_W()
+			Yn = Yn_list[i-1] + Xn_list[i-1]*delta_t + B*math.sqrt(delta_t)*Wn
+			Vn_list.append(Vn)
+			Xn_list.append(Xn)
+			Wn_list.append(Wn)
+			Yn_list.append(Yn)
+		sys.stderr.write("Done.\n")
+		return Vn_list, Xn_list, Wn_list, Yn_list
+	
+	def normal_density(self, X, mean, sd):
+		"""
+		2007-04-23
+			rpy.r.dnorm() sometimes return NaN
+		"""
+		import math
+		return 1/(sd*math.sqrt(2*math.pi))*math.exp(-(X-mean)*(X-mean)/(2.0*sd*sd))
+	
+	def prob_X_given_X(self, old_X, new_X, h=0.01):
+		import math
+		return self.normal_density(new_X, old_X+0.1*math.cos(2*old_X)*h, abs(0.14*math.sqrt(h)))
+	
+	def prob_X_0(self, X):
+		return self.normal_density(X, 0, 0.1)
+	
+	def cal_alpha_ratio(self, t_i_plus_1, t_i, a, B, lambda_1, delta_t, K, C):
+		import math
+		return math.exp((a-lambda_1/(B*B))*delta_t)*math.exp(delta_t*C)*(K*math.exp(t_i/C)+1)/(K*math.exp(t_i_plus_1/C)+1)
+	
+	def filter_by_discretization(self, Yn_list, cal_alpha_ratio, t_list, a, b, B, delta_t=0.01):
+		"""
+		2007-05-07
+			use discretization and Riemann-sum to solve the integral
+		"""
+		import sys, math
+		sys.stderr.write("Filtering ...\n")
+		no_of_Yns = len(Yn_list)
+		Xn_hat_list = [1]	#X0=1 and \hat{X_0} = EX0 = 1
+		Xn_hat_with_exact_alpha_ratio_list = [1]
+		Pn_list = [0]	#X_0 is constant, so P_0 is 0
+		
+		a_B_sqr = a*B*B
+		lambda_common = a_B_sqr*a_B_sqr + b*b*B*B
+		lambda_1 = math.sqrt(lambda_common)+a_B_sqr
+		lambda_2 = -math.sqrt(lambda_common)+a_B_sqr
+		C = B*B/(lambda_1-lambda_2)
+		K = -lambda_1/lambda_2	#different from the final exam
+		approx_alpha_ratio_list = []
+		exact_alpha_ratio_list1 = []
+		exact_alpha_ratio_list2 = []
+		for i in range(1, len(t_list)):
+			approx_alpha_ratio = math.exp((a-Pn_list[i-1]/(B*B))*delta_t)
+			approx_alpha_ratio_list.append(approx_alpha_ratio)
+			exact_alpha_ratio1 = self.cal_alpha_ratio(t_list[i], t_list[i], a, B, lambda_1, delta_t, K, C)
+			exact_alpha_ratio2 = self.cal_alpha_ratio(t_list[i], t_list[i], a, B, lambda_2, delta_t, K, C)
+			exact_alpha_ratio_list1.append(exact_alpha_ratio1)
+			exact_alpha_ratio_list2.append(exact_alpha_ratio2)
+			
+			Xn_hat_list.append(approx_alpha_ratio*(Xn_hat_list[i-1]+Pn_list[i-1]/(B*B)*(Yn_list[i]-Yn_list[i-1])))
+			Xn_hat_with_exact_alpha_ratio_list.append(exact_alpha_ratio1*(Xn_hat_list[i-1]+Pn_list[i-1]/(B*B)*(Yn_list[i]-Yn_list[i-1])))
+			delta_P = 2*a*Pn_list[i-1] + b*b - (Pn_list[i-1]*Pn_list[i-1])/(B*B)
+			Pn_list.append(delta_P*delta_t + Pn_list[i-1])
+			sys.stderr.write("%s%s"%('\x08'*10, i))
+		sys.stderr.write("Done.\n")
+		return Xn_hat_list, Xn_hat_with_exact_alpha_ratio_list, Pn_list, approx_alpha_ratio_list, exact_alpha_ratio_list1, exact_alpha_ratio_list2
+	
+	def plot(self, list_of_data_ls, label_list, title, figure_fname):
+		import pylab, Numeric
+		pylab.clf()
+		x_index_list = range(len(list_of_data_ls[0]))
+		color_list = ['b','g','r', 'c']
+		for i in range(len(list_of_data_ls)):
+			pylab.plot(x_index_list, list_of_data_ls[i], color_list[i])
+		pylab.title(r'%s'%title)
+		pylab.xlabel('n')
+		pylab.legend(label_list)
+		pylab.savefig('%s.svg'%figure_fname, dpi=200)
+		pylab.savefig('%s.eps'%figure_fname, dpi=200)
+		pylab.savefig('%s.png'%figure_fname, dpi=200)
+		pylab.show()
+	
+	def calculate_mse(self, Xn_list, Xn_hat_list):
+		import Numeric
+		diff_array = Numeric.array(Xn_list)-Numeric.array(Xn_hat_list)
+		mse = sum(diff_array*diff_array)/(len(Xn_list))
+		return mse
+	
+	def simulate_filter_wrapper(self, t_list, delta_t, a, b, B, figure_output_fname_prefix='Final_4'):
+		
+		Vn_list, Xn_list, Wn_list, Yn_list = self.simulate(t_list, a, b, B, self.sample_W, self.sample_W, delta_t)
+		print 'Vn_list'
+		print Vn_list
+		print 'Xn_list'
+		print Xn_list
+		print 'Wn_list'
+		print Wn_list
+		print 'Yn_list'
+		print Yn_list
+		
+		Xn_hat_list, Xn_hat_with_exact_alpha_ratio_list, Pn_list, approx_alpha_ratio_list, exact_alpha_ratio_list1, exact_alpha_ratio_list2 = self.filter_by_discretization(Yn_list, self.cal_alpha_ratio, t_list, a, b, B, delta_t)
+		
+		mse1 = self.calculate_mse(Xn_list, Xn_hat_list)
+		mse2 = self.calculate_mse(Xn_list, Xn_hat_with_exact_alpha_ratio_list)
+		print 'Xn_hat_list:', Xn_hat_list
+		print 'Xn_hat_with_exact_alpha_ratio_list:', Xn_hat_with_exact_alpha_ratio_list
+		print 'mse1:', mse1
+		print 'mse2:', mse2
+		
+		title = r'%s K-B filter. a=%s b=%s B=%s gap=%s  mse1=%2.4f mse2=%2.4f'%(figure_output_fname_prefix, a, b, B, delta_t, mse1, mse2)
+		figure_fname = '%s_Xn_Yn_Xn_hat_a_%s_b_%s_B_%s_gap_%s'%(figure_output_fname_prefix, a, b, B, delta_t)
+		list_of_data_ls = [Xn_list, Yn_list, Xn_hat_list, Xn_hat_with_exact_alpha_ratio_list]
+		label_list = ['Xn', 'Yn', 'Xn_hat', 'Xn_hat_exact']
+		self.plot(list_of_data_ls, label_list, title, figure_fname)
+		
+		mse1 = self.calculate_mse(approx_alpha_ratio_list, exact_alpha_ratio_list1)
+		mse2 = self.calculate_mse(approx_alpha_ratio_list, exact_alpha_ratio_list2)
+		print 'approx_alpha_ratio_list:', approx_alpha_ratio_list
+		print 'exact_alpha_ratio_list1:', exact_alpha_ratio_list1
+		print 'exact_alpha_ratio_list2:', exact_alpha_ratio_list2
+		print 'mse1:', mse1
+		print 'mse2:', mse2
+		title = r'%s a_ratio approx vs exact. a=%s b=%s B=%s gap=%s, mse1=%2.4f, mse2=%2.4f'%(figure_output_fname_prefix, a, b, B, delta_t, mse1, mse2)
+		figure_fname = '%s_alpha_ratio_comp_a_%s_b_%s_B_%s_gap_%s'%(figure_output_fname_prefix, a, b, B, delta_t)
+		list_of_data_ls = [approx_alpha_ratio_list, exact_alpha_ratio_list1, exact_alpha_ratio_list2]
+		label_list = ['approx_alpha_ratio', 'exact_alpha_ratio1', 'exact_alpha_ratio2']
+		self.plot(list_of_data_ls, label_list, title, figure_fname)
+	
+	def test_simulate_filter(self):
+		t_region = [0, 10]
+		delta_t = 0.01
+		t_list = []
+		t_i = t_region[0]
+		while t_i <= t_region[1]:
+			t_list.append(t_i)
+			t_i += delta_t
+		#import pdb
+		#pdb.set_trace()
+		a = 0.1
+		b = 1
+		B = 0.3
+		self.simulate_filter_wrapper(t_list, delta_t, a, b, B)
+		
+		a = 0.1
+		b = 1
+		B = 10
+		self.simulate_filter_wrapper(t_list, delta_t, a, b, B)
+		
+		a = -1
+		b = 1
+		B = 0.3
+		self.simulate_filter_wrapper(t_list, delta_t, a, b, B)
+		
+		a = -1
+		b = 2
+		B = 0.3
+		self.simulate_filter_wrapper(t_list, delta_t, a, b, B)
+
 if __name__ == '__main__':
 	if len(sys.argv) == 1:
 		print __doc__
@@ -1825,7 +2325,9 @@ if __name__ == '__main__':
 		12: Math508_HW10_1,
 		13: Math508_HW10_2,
 		14: Math508_HW11_3,
-		15: Math508_HW12_3}
+		15: Math508_HW12_3,
+		16: Math508_Final_Exam_3,
+		17: Math508_Final_Exam_4}
 	type = 0
 	for opt, arg in opts:
 		if opt in ("-h", "--help"):
