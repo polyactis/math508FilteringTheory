@@ -105,7 +105,7 @@ Professor, in this problem, i found a little problem with hint you gave us. Basi
             & W_1 \ar[u]        & W_2 \ar[u]        & \ldots &        & W_{n+1} \ar[u]    & W_{n+2} \ar[u] &\ldots \\ }
 \end{equation}
 
-The recursion for \emph{procedure 1} is
+The recursion for \textbf{procedure 1} is
 \begin{eqnarray}
 \gamma_0(H_0, X_0) = 0  \\
 \gamma_0(X_0) = \frac{1}{0.1^2}\rho(x/0.1)  \\
@@ -115,7 +115,7 @@ E[H_n|Y_{[0,n]}] = \frac{\int_R \gamma_n(H_n, X_n) dX_n}{\int_R \gamma_n(X_n)dX_
 E[f(X_n) | Y_{[0,n]}] = \frac{\int_R f(X_n)\gamma_n(X_n)dX_n }{\int_R \gamma_n(X_n)dX_n}
 \end{eqnarray}
 
-Basically, to get the signal of $X_{n+1}$, we are $Y_{n+1}$, one step prediction from $X_n$ and all previous information. However, looking at diagram (\ref{prob3_depend}), we should incorporate $Y_{n+2}$ to do a full filtering. So after some calculation, i propose \emph{procedure 2}
+Basically, to get the signal of $X_{n+1}$, we are $Y_{n+1}$, one step prediction from $X_n$ and all previous information. However, looking at diagram (\ref{prob3_depend}), we should incorporate $Y_{n+2}$ to do a full filtering. So after some calculation, i propose \textbf{procedure 2}
 \begin{eqnarray}
 \gamma_0(H_0, X_{-1}) = 0  \\
 \gamma_0(X_0) = \lambda^{-1}(Y_{1}, X_{0})\frac{1}{0.1^2}\rho(x/0.1)  \\
