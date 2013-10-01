@@ -1,0 +1,249 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN"
+"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
+<svg
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   version="1.0"
+   x="0.0"
+   y="0.0"
+   width="576.000000"
+   height="432.000000"   
+   id="svg1">
+<g id="figure1">
+<polygon         
+style="stroke: #ffffff;  stroke-width: 1.000000;  stroke-linejoin: miter;  stroke-linecap: square;   opacity: 1.000000;  fill: #ffffff;   "
+   points = "0.000000,432.000000 0.000000,0.000000 576.000000,0.000000 576.000000,432.000000"  />
+<g id="axes1">
+<polygon         
+style="stroke: #000000;  stroke-width: 1.000000;  stroke-linejoin: miter;  stroke-linecap: square;   opacity: 1.000000;  fill: #ffffff;   "
+   points = "72.000000,388.800000 72.000000,43.200000 518.400000,43.200000 518.400000,388.800000"  />
+<g id="matplotlib.axis1">
+<g id="xtick1">
+<text style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;" x="61.000000" y="401.800000" >100</text>
+</g>
+<g id="xtick2">
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 161.280000,388.800000 L 161.280000,384.800000"   />
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 161.280000,388.800000 L 161.280000,384.800000"   />
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 161.280000,47.200000 L 161.280000,43.200000"   />
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 161.280000,47.200000 L 161.280000,43.200000"   />
+<text style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;" x="150.280000" y="401.800000" >120</text>
+</g>
+<g id="xtick3">
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 250.560000,388.800000 L 250.560000,384.800000"   />
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 250.560000,388.800000 L 250.560000,384.800000"   />
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 250.560000,47.200000 L 250.560000,43.200000"   />
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 250.560000,47.200000 L 250.560000,43.200000"   />
+<text style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;" x="239.560000" y="401.800000" >140</text>
+</g>
+<g id="xtick4">
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 339.840000,388.800000 L 339.840000,384.800000"   />
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 339.840000,388.800000 L 339.840000,384.800000"   />
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 339.840000,47.200000 L 339.840000,43.200000"   />
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 339.840000,47.200000 L 339.840000,43.200000"   />
+<text style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;" x="328.840000" y="401.800000" >160</text>
+</g>
+<g id="xtick5">
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 429.120000,388.800000 L 429.120000,384.800000"   />
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 429.120000,388.800000 L 429.120000,384.800000"   />
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 429.120000,47.200000 L 429.120000,43.200000"   />
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 429.120000,47.200000 L 429.120000,43.200000"   />
+<text style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;" x="418.120000" y="401.800000" >180</text>
+</g>
+<g id="xtick6">
+<text style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;" x="507.400000" y="401.800000" >200</text>
+</g>
+<text style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;" x="292.200000" y="413.800000" >n</text>
+</g>
+<g id="matplotlib.axis2">
+<g id="ytick1">
+<text style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;" x="55.000000" y="393.300000" >11</text>
+</g>
+<g id="ytick2">
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 72.000000,350.400000 L 76.000000,350.400000"   />
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 72.000000,350.400000 L 76.000000,350.400000"   />
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 514.400000,350.400000 L 518.400000,350.400000"   />
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 514.400000,350.400000 L 518.400000,350.400000"   />
+<text style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;" x="53.953125" y="354.900000" >12</text>
+</g>
+<g id="ytick3">
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 72.000000,312.000000 L 76.000000,312.000000"   />
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 72.000000,312.000000 L 76.000000,312.000000"   />
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 514.400000,312.000000 L 518.400000,312.000000"   />
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 514.400000,312.000000 L 518.400000,312.000000"   />
+<text style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;" x="54.000000" y="316.500000" >13</text>
+</g>
+<g id="ytick4">
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 72.000000,273.600000 L 76.000000,273.600000"   />
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 72.000000,273.600000 L 76.000000,273.600000"   />
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 514.400000,273.600000 L 518.400000,273.600000"   />
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 514.400000,273.600000 L 518.400000,273.600000"   />
+<text style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;" x="54.000000" y="278.100000" >14</text>
+</g>
+<g id="ytick5">
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 72.000000,235.200000 L 76.000000,235.200000"   />
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 72.000000,235.200000 L 76.000000,235.200000"   />
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 514.400000,235.200000 L 518.400000,235.200000"   />
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 514.400000,235.200000 L 518.400000,235.200000"   />
+<text style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;" x="54.000000" y="239.700000" >15</text>
+</g>
+<g id="ytick6">
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 72.000000,196.800000 L 76.000000,196.800000"   />
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 72.000000,196.800000 L 76.000000,196.800000"   />
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 514.400000,196.800000 L 518.400000,196.800000"   />
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 514.400000,196.800000 L 518.400000,196.800000"   />
+<text style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;" x="54.000000" y="201.300000" >16</text>
+</g>
+<g id="ytick7">
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 72.000000,158.400000 L 76.000000,158.400000"   />
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 72.000000,158.400000 L 76.000000,158.400000"   />
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 514.400000,158.400000 L 518.400000,158.400000"   />
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 514.400000,158.400000 L 518.400000,158.400000"   />
+<text style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;" x="54.000000" y="162.900000" >17</text>
+</g>
+<g id="ytick8">
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 72.000000,120.000000 L 76.000000,120.000000"   />
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 72.000000,120.000000 L 76.000000,120.000000"   />
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 514.400000,120.000000 L 518.400000,120.000000"   />
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 514.400000,120.000000 L 518.400000,120.000000"   />
+<text style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;" x="54.000000" y="124.500000" >18</text>
+</g>
+<g id="ytick9">
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 72.000000,81.600000 L 76.000000,81.600000"   />
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 72.000000,81.600000 L 76.000000,81.600000"   />
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 514.400000,81.600000 L 518.400000,81.600000"   />
+<path         
+style="stroke: #000000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
+ d="M 514.400000,81.600000 L 518.400000,81.600000"   />
+<text style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;" x="54.000000" y="86.100000" >19</text>
+</g>
+<g id="ytick10">
+<text style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;" x="54.000000" y="47.700000" >20</text>
+</g>
+</g>
+
+<defs>
+    <clipPath id="-1250928610">
+    <rect x="72.000000" y="43.200000" width="446.400000" height="345.600000"
+    style="stroke: gray; fill: none;"/>
+    </clipPath>
+</defs>
+
+<path         
+style="stroke: #0000ff;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: square;   opacity: 1.000000;  fill: none;   clip-path:url(#-1250928610);  "
+ d="M 518.400000,43.200000 L 513.936000,43.200000 L 509.472000,43.200000 L 505.008000,43.200000 L 500.544000,43.200000 L 496.080000,43.200000 L 491.616000,43.200000 L 487.152000,43.200000 L 482.688000,43.200000 L 478.224000,43.200000 L 473.760000,43.200000 L 469.296000,43.200000 L 464.832000,43.200000 L 460.368000,43.200000 L 455.904000,43.200000 L 451.440000,43.200000 L 446.976000,43.200000 L 442.512000,43.200000 L 438.048000,43.200000 L 433.584000,43.200000 L 429.120000,43.200000 L 424.656000,43.200000 L 420.192000,43.200000 L 415.728000,43.200000 L 411.264000,43.200000 L 406.800000,43.200000 L 402.336000,43.200000 L 397.872000,43.200000 L 393.408000,43.200000 L 388.944000,43.200000 L 384.480000,43.200000 L 380.016000,43.200000 L 375.552000,43.200000 L 371.088000,43.200000 L 366.624000,43.200000 L 362.160000,43.200000 L 357.696000,43.200000 L 353.232000,43.200000 L 348.768000,43.200000 L 344.304000,43.200000 L 339.840000,43.200000 L 335.376000,43.200000 L 330.912000,43.200000 L 326.448000,43.200000 L 321.984000,43.200000 L 317.520000,43.200000 L 313.056000,43.200000 L 308.592000,43.200000 L 304.128000,43.200000 L 299.664000,43.200000 L 295.200000,43.200000 L 290.736000,43.200000 L 286.272000,43.200000 L 281.808000,43.200000 L 277.344000,43.200000 L 272.880000,43.200000 L 268.416000,43.200000 L 263.952000,43.200000 L 259.488000,43.200000 L 255.024000,43.200000 L 250.560000,43.200000 L 246.096000,43.200000 L 241.632000,43.200000 L 237.168000,43.200000 L 232.704000,43.200000 L 228.240000,43.200000 L 223.776000,43.200000 L 219.312000,43.200000 L 214.848000,43.200000 L 210.384000,43.200000 L 205.920000,43.200000 L 201.456000,43.200000 L 196.992000,43.200000 L 192.528000,43.200000 L 188.064000,43.200000 L 183.600000,43.200000 L 179.136000,43.200000 L 174.672000,43.200000 L 170.208000,43.200000 L 165.744000,43.200000 L 161.280000,43.200000 L 156.816000,43.200000 L 152.352000,43.200000 L 147.888000,43.200000 L 143.424000,43.200000 L 138.960000,43.200000 L 134.496000,43.200000 L 130.032000,43.200000 L 125.568000,43.200000 L 121.104000,43.200000 L 116.640000,43.200000 L 112.176000,43.200000 L 107.712000,43.200000 L 103.248000,43.200000 L 98.784000,43.200000 L 94.320000,43.200000 L 89.856000,43.200000 L 85.392000,43.200000 L 80.928000,43.200000 L 76.464000,43.200000 L 72.000000,43.200000 "   />
+<path         
+style="stroke: #008000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: square;   opacity: 1.000000;  fill: none;   clip-path:url(#-1250928610);  "
+ d="M 518.400000,43.200000 L 513.936000,62.400000 L 509.472000,98.813793 L 505.008000,102.080000 L 500.544000,108.000000 L 496.080000,108.000000 L 491.616000,108.000000 L 487.152000,108.000000 L 482.688000,118.500000 L 478.224000,118.500000 L 473.760000,127.950000 L 469.296000,127.950000 L 464.832000,132.281250 L 460.368000,144.656250 L 455.904000,152.197266 L 451.440000,152.197266 L 446.976000,160.126194 L 442.512000,164.034638 L 438.048000,165.871631 L 433.584000,169.314478 L 429.120000,169.314478 L 424.656000,169.314478 L 420.192000,169.314478 L 415.728000,178.732695 L 411.264000,175.638139 L 406.800000,178.732457 L 402.336000,187.657347 L 397.872000,184.682548 L 393.408000,196.084705 L 388.944000,200.958391 L 384.480000,200.958391 L 380.016000,206.533638 L 375.552000,206.533638 L 371.088000,206.533638 L 366.624000,203.930581 L 362.160000,206.531074 L 357.696000,214.108675 L 353.232000,221.405396 L 348.768000,230.830777 L 344.304000,230.830777 L 339.840000,246.806765 L 335.376000,235.235073 L 330.912000,228.255457 L 326.448000,239.533389 L 321.984000,254.727173 L 317.520000,237.098344 L 313.056000,237.098344 L 308.592000,247.827303 L 304.128000,251.829633 L 299.664000,251.829633 L 295.200000,245.517396 L 290.736000,255.739558 L 286.272000,269.541782 L 281.808000,259.559803 L 277.344000,273.042461 L 272.880000,289.638114 L 268.416000,308.902568 L 263.952000,330.346708 L 259.488000,311.515373 L 255.024000,295.664004 L 250.560000,273.992421 L 246.096000,273.992421 L 241.632000,286.285795 L 237.168000,301.430721 L 232.704000,289.415073 L 228.240000,304.219869 L 223.776000,283.985907 L 219.312000,283.985907 L 214.848000,295.466869 L 210.384000,287.169019 L 205.920000,280.507174 L 201.456000,280.507174 L 196.992000,285.394098 L 192.528000,293.323577 L 188.064000,288.546384 L 183.600000,286.958087 L 179.136000,291.628189 L 174.672000,294.641168 L 170.208000,294.641168 L 165.744000,299.074744 L 161.280000,304.830759 L 156.816000,304.830759 L 152.352000,314.631534 L 147.888000,326.714149 L 143.424000,340.759182 L 138.960000,356.410985 L 134.496000,342.678215 L 130.032000,357.982288 L 125.568000,344.554792 L 121.104000,333.260782 L 116.640000,324.304094 L 112.176000,317.832082 L 107.712000,313.933553 L 103.248000,320.261537 L 98.784000,318.910116 L 94.320000,318.910116 L 89.856000,318.910116 L 85.392000,321.315734 L 80.928000,321.315734 L 76.464000,320.104996 L 72.000000,323.667884 "   />
+<text style="font-size: 14.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;" x="76.676562" y="36.288000" >prediction $\hat{X_{200,n}}$ r.w. on A=[0,20], P(W=+-3)=1/2</text>
+<g id="legend1">
+<polygon         
+style="stroke: #000000;  stroke-width: 1.000000;  stroke-linejoin: miter;  stroke-linecap: square;   opacity: 1.000000;  fill: #ffffff;   "
+   points = "408.614400,77.800320 408.614400,50.112000 509.472000,50.112000 509.472000,77.800320"  />
+<path         
+style="stroke: #0000ff;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: square;   opacity: 1.000000;  fill: none;   "
+ d="M 418.819200,57.419360 L 426.259200,57.419360 L 433.699200,57.419360 L 441.139200,57.419360 "   />
+<path         
+style="stroke: #008000;  stroke-width: 0.500000;  stroke-linejoin: miter;  stroke-linecap: square;   opacity: 1.000000;  fill: none;   "
+ d="M 418.819200,70.492960 L 426.259200,70.492960 L 433.699200,70.492960 L 441.139200,70.492960 "   />
+<text style="font-size: 10.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;" x="450.067200" y="62.419360" >Xn_list</text>
+<text style="font-size: 10.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;" x="450.067200" y="75.492960" >Xn_hat_list</text>
+</g>
+</g>
+</g>
+</svg>

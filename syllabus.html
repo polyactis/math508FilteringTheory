@@ -1,0 +1,281 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+           "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+
+<head>
+<meta NAME="GENERATOR" CONTENT="Microsoft FrontPage 12.0">
+<title>Math 508</title>
+<style type="text/css">
+.ms-grid1-main {
+	border-left: .75pt solid black;
+	border-right-style: none;
+	border-top: .75pt solid black;
+	border-bottom: .75pt solid black;
+	background-color: white;
+}
+.ms-grid1-tl {
+	font-weight: normal;
+	color: black;
+	border-left-style: none;
+	border-right: .75pt solid black;
+	border-top-style: none;
+	border-bottom-style: none;
+	background-color: white;
+}
+.ms-grid1-left {
+	font-weight: normal;
+	color: black;
+	border-left-style: none;
+	border-right: .75pt solid black;
+	border-top: .75pt solid black;
+	border-bottom-style: none;
+	background-color: white;
+}
+.ms-grid1-top {
+	font-weight: normal;
+	color: black;
+	border-left-style: none;
+	border-right: .75pt solid black;
+	border-top-style: none;
+	border-bottom-style: none;
+	background-color: white;
+}
+.ms-grid1-even {
+	font-weight: normal;
+	color: black;
+	border-left-style: none;
+	border-right: .75pt solid black;
+	border-top: .75pt solid black;
+	border-bottom-style: none;
+	background-color: white;
+}
+.style2 {
+	border-left: .75pt solid black;
+	border-right-style: none;
+	border-top: .75pt solid black;
+	border-bottom: .75pt solid black;
+	background-color: white;
+	border-collapse: collapse;
+}
+</style>
+</head>
+<b>
+
+<body>
+
+<p align="center"></b>&nbsp;</p>
+
+<p align="center"><big><b><big><big>Math 50</big></big></b><big><big>8</big></big></big> </p>
+
+<p align="center"><big><big><b>Filtering Theory</b></big></big> </p>
+
+<p align="center">&nbsp;Spring 2007 </p>
+
+<p align="left"><strong><a href="#hw">HOMEWORK</a>; </strong>
+<a href="508_markov.pdf">Chapter 2</a></p>
+
+<p align="center"><strong>GENERAL INFORMATION</strong></p>
+
+<dl compact>
+  <dt><b>Instructor:</b></dt>
+  <dd>&nbsp;R. Mikulevicius, DRB 314, 740-2441 (Math dept:&nbsp;740-2400), email:&nbsp;<a
+    href="mailto:mikulvcs@math.usc.edu">mikulvcs@math.usc.edu </a></dd>
+	<dt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Office 
+	hours: &nbsp;M, W 1:00-2:00 (DRB 314), F 1:00-2:00 (KAP Math Center) or any time by 
+  appointment</dt>
+	<dt><b>Time and location:</b></dt>
+	<dd>M, W, F&nbsp;2:00, KAP 137. </dd>
+	<dt><b>Textbook:</b></dt>
+	<dd>&nbsp;Filtering Theory (course notes), by B. Fristedt and N. V. Krylov, 
+	2005; B. Rozovsky's notes</dd>
+	<dt><b>Material:</b></dt>
+	<dd>&nbsp; </dd>
+</dl>
+
+<table border="1">
+  <tr>
+    <td align="center"><em>Topics</em> </td>
+  </tr>
+  <tr>
+    <td align="center">&nbsp;</td>
+  </tr>
+  <tr>
+    <td align="center">Preliminaries, Random walk, Markov Chain</td>
+  </tr>
+  <tr>
+    <td align="center">&nbsp;</td>
+  </tr>
+  <tr>
+    <td align="center">Filtering: Markov chain model, Kalman Filter</td>
+  </tr>
+  <tr>
+    <td align="center">&nbsp;</td>
+  </tr>
+  <tr>
+    <td align="center">Hidden Markov models (HMM)&nbsp; </td>
+  </tr>
+  <tr>
+    <td align="center">&nbsp;</td>
+  </tr>
+  <tr>
+    <td align="center">Wiener Filter (stationary processes)</td>
+  </tr>
+  <tr>
+    <td align="center">&nbsp;</td>
+  </tr>
+  <tr>
+    <td align="center">Filtering in continuous time</td>
+  </tr>
+</table>
+
+<p><b>Grading: </b></p>
+
+<p>There will be weakly homework assignments, one midterm and a final exam. They
+will count toward the grade as follows. </p>
+
+<table border="1">
+  <tr>
+    <td>Homework assignment </td>
+    <td>30% </td>
+  </tr>
+  <tr>
+    <td>Midterm </td>
+    <td>30% </td>
+  </tr>
+  <tr>
+    <td>Final </td>
+    <td>40% </td>
+  </tr>
+  </table>
+
+<p><em>Homework: </em>Problems will be assigned every week. </p>
+
+<p><b>Midterm</b>: Wednesday, March 7 </p>
+
+<p><b>Final exam</b> is on Monday, May 7, 2:00-4:00. It is 
+comprehensive</p>
+
+<p><em>Please keep in mind that it may be necessary to make some adjustments in 
+the syllabus and good luck!</em> </p>
+<p>Any questions or suggestions-please contact me (<font color="green">do not 
+hesitate to talk to me about your problems, questions, or concerns in this 
+class)</font></p>
+
+<p>&nbsp;</p><p><a name="hw"><strong>HOMEWORK</strong></a></p>
+
+<table border="1" width="55%" height="562" class="style2">
+  <!-- fpstyle: 16,011111100 -->
+  <tr>
+    <td width="30%" align="center" height="19" class="ms-grid1-tl"><font size="5"><strong>Problems</strong></font></td>
+    <td width="55%" align="center" height="19" class="ms-grid1-top"><strong><font size="5">S</font></strong><font size="5"><strong>olutions</strong></font></td>
+    <td width="8%" align="center" height="19" class="ms-grid1-top"><strong>Date posted</strong></td>
+  </tr>
+  <tr>
+    <td width="30%" height="19" class="ms-grid1-left">
+    <a href="math508spring07hw1.pdf">HW1</a></td>
+    <td width="55%" height="19" class="ms-grid1-even">
+    <p><a href="math508spring07hw1s.pdf">HW1</a>s</td>
+    <td width="8%" height="19" class="ms-grid1-even">1/12</td>
+  </tr>
+  <tr>
+    <td width="30%" height="19" class="ms-grid1-left">
+    <a href="math508spring07hw2.pdf">HW</a>2</td>
+    <td width="55%" height="19" class="ms-grid1-even">
+    &nbsp;</td>
+    <td width="8%" height="19" class="ms-grid1-even">1/19</td>
+  </tr>
+  <tr>
+    <td width="30%" height="19" class="ms-grid1-left">
+    <a href="math508spring07hw3.pdf">HW</a>3</td>
+    <td width="55%" height="19" class="ms-grid1-even">
+    &nbsp;</td>
+    <td width="8%" height="19" class="ms-grid1-even">1/26</td>
+  </tr>
+  <tr>
+    <td width="30%" height="19" class="ms-grid1-left">
+    &nbsp;</td>
+    <td width="55%" height="19" class="ms-grid1-even">
+    &nbsp;</td>
+    <td width="8%" height="19" class="ms-grid1-even">&nbsp;</td>
+  </tr>
+  <tr>
+    <td width="30%" height="19" class="ms-grid1-left">
+    &nbsp;</td>
+    <td width="55%" height="19" class="ms-grid1-even">
+    &nbsp;</td>
+    <td width="8%" height="19" class="ms-grid1-even">&nbsp;</td>
+  </tr>
+  <tr>
+    <td width="30%" height="19" class="ms-grid1-left">
+    &nbsp;</td>
+    <td width="55%" height="19" class="ms-grid1-even">
+	&nbsp;</td>
+    <td width="8%" height="19" class="ms-grid1-even">&nbsp;</td>
+  </tr>
+  <tr>
+    <td width="30%" height="19" class="ms-grid1-left">
+    &nbsp;</td>
+    <td width="55%" height="19" class="ms-grid1-even">
+    &nbsp;</td>
+    <td width="8%" height="19" class="ms-grid1-even">&nbsp;</td>
+  </tr>
+  <tr>
+    <td width="30%" height="19" class="ms-grid1-left">
+    &nbsp;</td>
+    <td width="55%" height="19" class="ms-grid1-even">
+    &nbsp;</td>
+    <td width="8%" height="19" class="ms-grid1-even">&nbsp;</td>
+  </tr>
+  <tr>
+    <td width="30%" height="19" class="ms-grid1-left">
+	&nbsp;</td>
+    <td width="55%" height="19" class="ms-grid1-even">
+    &nbsp;</td>
+    <td width="8%" height="19" class="ms-grid1-even">&nbsp;</td>
+  </tr>
+  <tr>
+    <td width="30%" height="19" class="ms-grid1-left">
+    &nbsp;</td>
+    <td width="55%" height="19" class="ms-grid1-even">
+    &nbsp;</td>
+    <td width="8%" height="19" class="ms-grid1-even">&nbsp;</td>
+  </tr>
+  <tr>
+    <td width="30%" height="19" class="ms-grid1-left">
+    &nbsp;</td>
+    <td width="55%" height="19" class="ms-grid1-even">
+    &nbsp;</td>
+    <td width="8%" height="19" class="ms-grid1-even">&nbsp;</td>
+  </tr>
+  <tr>
+    <td width="30%" height="19" class="ms-grid1-left">
+    &nbsp;</td>
+    <td width="55%" height="19" class="ms-grid1-even">
+    &nbsp;</td>
+    <td width="8%" height="19" class="ms-grid1-even">&nbsp;</td>
+  </tr>
+  <tr>
+    <td width="30%" height="19" class="ms-grid1-left">
+    &nbsp;</td>
+    <td width="55%" height="19" class="ms-grid1-even">
+    &nbsp;</td>
+    <td width="8%" height="19" class="ms-grid1-even">&nbsp;</td>
+  </tr>
+  <tr>
+    <td width="30%" height="19" class="ms-grid1-left">
+    &nbsp;</td>
+    <td width="55%" height="19" class="ms-grid1-even">
+    &nbsp;</td>
+    <td width="8%" height="19" class="ms-grid1-even">&nbsp;</td>
+  </tr>
+  <tr>
+    <td width="30%" height="19" class="ms-grid1-left">
+    &nbsp;</td>
+    <td width="55%" height="19" class="ms-grid1-even">
+    &nbsp;</td>
+    <td width="8%" height="19" class="ms-grid1-even">&nbsp;</td>
+  </tr>
+  </table>
+
+</body>
+</html>
